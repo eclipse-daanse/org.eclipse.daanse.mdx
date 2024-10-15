@@ -33,9 +33,9 @@ public class RightFunctionCall extends BaseNode
     }
 
     public String name() {
-        if (getChild(1) instanceof NameObjectIdentifier noi)
+        if (getFirstChild() instanceof NameObjectIdentifier noi)
             return noi.name();
-        if (getChild(1) instanceof CompoundId ci)
+        if (getFirstChild() instanceof CompoundId ci)
             return ci.getLastChild().toString();
         return null;
     }

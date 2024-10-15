@@ -139,7 +139,7 @@ INJECT RefreshStatement :
    implements org.eclipse.daanse.mdx.model.api.RefreshStatement;
 {
    public NameObjectIdentifier cubeName() {
-      return (NameObjectIdentifier) getChild(2);
+      return (NameObjectIdentifier) get(2);
    }
 }
 
@@ -154,7 +154,7 @@ INJECT UpdateStatement :
    implements org.eclipse.daanse.mdx.model.api.UpdateStatement;
 {
    public NameObjectIdentifier cubeName() {
-      return (NameObjectIdentifier) getChild(2);
+      return (NameObjectIdentifier) get(2);
    }
 
    public List<org.eclipse.daanse.mdx.model.api.select.UpdateClause> updateClauses() {
@@ -177,18 +177,18 @@ INJECT UpdateClause :
    implements org.eclipse.daanse.mdx.model.api.select.UpdateClause
 {
     public org.eclipse.daanse.mdx.model.api.expression.MdxExpression tupleExp() {
-      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(0);
+      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getFirstChild();
     }
 
     public org.eclipse.daanse.mdx.model.api.expression.MdxExpression valueExp() {
-          return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(2);
+          return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(2);
     }
 
     public org.eclipse.daanse.mdx.model.api.select.Allocation allocation() {
-          if (getChild(3) == null) {
+          if (get(3) == null) {
             return org.eclipse.daanse.mdx.model.api.select.Allocation.NO_ALLOCATION;
           }
-          NodeType type = getChild(3).getType();
+          NodeType type = get(3).getType();
           if (type == USE_EQUAL_ALLOCATION) return org.eclipse.daanse.mdx.model.api.select.Allocation.USE_EQUAL_ALLOCATION;
           else if (type == USE_EQUAL_INCREMENT) return org.eclipse.daanse.mdx.model.api.select.Allocation.USE_EQUAL_INCREMENT;
           else if (type == USE_WEIGHTED_ALLOCATION) return org.eclipse.daanse.mdx.model.api.select.Allocation.USE_WEIGHTED_ALLOCATION;
@@ -264,7 +264,7 @@ INJECT SelectQueryAxisClause :
    implements org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause
 {
     public boolean nonEmpty() {
-       return getChild(0).getType() == NON && getChild(1).getType() == EMPTY;
+       return getFirstChild().getType() == NON && get(1).getType() == EMPTY;
     }
 
     public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
@@ -299,7 +299,7 @@ INJECT Axis :
       if (explicitOrdinalNode != null) {
          return Integer.valueOf(explicitOrdinalNode.getImage());
       }
-      NodeType type = getChild(0).getType();
+      NodeType type = getFirstChild().getType();
       if (type == COLUMNS) return 0;
       else if (type == ROWS) return 1;
       else if (type == PAGES) return 2;
@@ -352,11 +352,11 @@ INJECT CreateSetBodyClause :
   implements org.eclipse.daanse.mdx.model.api.select.CreateSetBodyClause
 {
    public CompoundId compoundId() {
-      return (CompoundId) getChild(0);
+      return (CompoundId) getFirstChild();
    }
 
    public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
-      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(2);
+      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(2);
    }
 }
 
@@ -374,7 +374,7 @@ INJECT SelectCellPropertyListClause :
    implements org.eclipse.daanse.mdx.model.api.select.SelectCellPropertyListClause
 {
    public boolean cell() {
-      return getChild(0).getType() == CELL;
+      return getFirstChild().getType() == CELL;
    }
 
    public java.util.List<String> properties() {
@@ -398,7 +398,7 @@ INJECT SelectSlicerAxisClause :
    implements org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
 {
     public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
-      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(1);
+      return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(1);
     }
 }
 
@@ -540,7 +540,7 @@ INJECT SelectSubcubeClauseName :
    implements SelectSubcubeClause, org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName
 {
    public NameObjectIdentifier cubeName() {
-      return (NameObjectIdentifier) getChild(0);
+      return (NameObjectIdentifier) getFirstChild();
    }
 }
 
@@ -574,7 +574,7 @@ INJECT ReturnItem :
   implements org.eclipse.daanse.mdx.model.api.ReturnItem
 {
    public CompoundId compoundId() {
-     return (CompoundId) getChild(0);
+     return (CompoundId) getFirstChild();
    }
 }
 
@@ -604,11 +604,11 @@ INJECT CreateMemberBodyClause :
   implements SelectWithClause, org.eclipse.daanse.mdx.model.api.select.CreateMemberBodyClause
 {
   public CompoundId compoundId() {
-    return (CompoundId) getChild(0);
+    return (CompoundId) getFirstChild();
   }
 
   public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
-     return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(2);
+     return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(2);
   }
 
   public java.util.List<MemberPropertyDefinition> memberPropertyDefinitions() {
