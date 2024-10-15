@@ -28,13 +28,33 @@
   <properties>
     <revision>0.0.1-SNAPSHOT</revision>
     <scm.repo.detail>org.eclipse.daanse.mdx</scm.repo.detail>
-<!--    <bnd.version>7.1.0-SNAPSHOT</bnd.version>-->
-
+    <!--    <bnd.version>7.1.0-SNAPSHOT</bnd.version>-->
   </properties>
 
-
   <modules>
-
+    <module>model.api</module>
+    <module>model.record</module>
+    <module>parser.api</module>
+    <module>parser.ccc</module>
+    <module>parser.cccx</module>
+    <module>parser.tck</module>
+    <module>unparser.api</module>
+    <module>unparser.simple</module>
+    <module>combinedtest</module>
+    <module>performancetest</module>
   </modules>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.bundle</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.annotation.versioning</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+  </dependencies>
 
 </project>
