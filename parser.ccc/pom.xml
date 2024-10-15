@@ -61,6 +61,13 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>org.eclipse.daanse.mdx.parser.ccc</excludePackageNames>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
