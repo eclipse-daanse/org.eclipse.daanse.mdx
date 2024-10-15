@@ -117,7 +117,7 @@ INJECT CompoundId :
 			List<ObjectIdentifier> list = childrenOfType(ObjectIdentifier.class);
 			if (!list.isEmpty()) {
 				for (int i = 0; i < list.size() - 1; i++) {
-					compoundId.addChild(list.get(i));
+					compoundId.add(list.get(i));
 				}
 			}
 			return List.of(compoundId);
@@ -127,8 +127,8 @@ INJECT CompoundId :
 	}
 
 	private boolean isChildrenHaveQuoted() {
-		for (int i = 0; i < getChildCount(); i++) {
-			Node child = getChild(i);
+		for (int i = 0; i < size(); i++) {
+			Node child = get(i);
 			char firstChar = child.getSource().charAt(0);
 			if (firstChar == '[') {
 				return true;
@@ -192,7 +192,7 @@ INJECT RelationalExpression :
    extends BinaryExpression
 {
 	public String name() {
-		Node op = getChild(1);
+		Node op = get(1);
 		if (op.getType() == IS && op.nextSibling().getType() == EMPTY) {
 			return "IS EMPTY";
 		} else if (op.getType() == NOT) {
@@ -264,7 +264,7 @@ INJECT BinaryExpression :
     implements Expression, org.eclipse.daanse.mdx.model.api.expression.CallExpression
 {
 	String name() {
-		return getChild(1).getImage();
+		return get(1).getImage();
 	}
 
 	@Override
@@ -295,7 +295,7 @@ INJECT UnaryExpression :
 {
 	@Override
 	public OperationAtom operationAtom() {
-		return new PrefixOperationAtom(getChild(0).getImage());
+		return new PrefixOperationAtom(getFirstChild().getImage());
 	}
 }
 
@@ -352,8 +352,8 @@ PrimaryPrefix#void :
         // If the CompoundId object has only
         // one child (which is a NameObjectIdentifier)
         // then just replace it with that in the tree.
-        if (peekNode().getChildCount() ==1) {
-          pokeNode(peekNode().getChild(0));
+        if (peekNode().size() ==1) {
+          pokeNode(peekNode().getFirstChild());
         } else {
             ObjectIdentifier oid = (ObjectIdentifier) peekNode().get(2);
             CompoundId compoundId = (CompoundId) peekNode();
@@ -370,14 +370,14 @@ INJECT DotName :
     implements PrimaryExpression, org.eclipse.daanse.mdx.model.api.expression.CallExpression
 {
     private String name() {
-        return getChild(2) instanceof
+        return get(2) instanceof
         NameObjectIdentifier noi
         ? noi.name() : null;
     }
 
 	@Override
 	public OperationAtom operationAtom() {
-        ObjectIdentifier oi = (ObjectIdentifier) getChild(2);
+        ObjectIdentifier oi = (ObjectIdentifier) get(2);
         return switch(oi.quoting()) {
             case UNQUOTED -> new PlainPropertyOperationAtom(name());
             case QUOTED -> new QuotedPropertyOperationAtom(name());
@@ -396,16 +396,16 @@ INJECT FunctionCall :
 {
 
 	public String name() {
-		if (getChild(0) instanceof NameObjectIdentifier noi)
+		if (getFirstChild() instanceof NameObjectIdentifier noi)
 			return noi.name();
-		if (getChild(0) instanceof CompoundId ci)
+		if (getFirstChild() instanceof CompoundId ci)
 			return ci.getLastChild().toString();
 		return null;
 	}
 
 	@Override
 	public OperationAtom operationAtom() {
-		return getChild(0) instanceof NameObjectIdentifier noi ? new FunctionOperationAtom(name())
+		return getFirstChild() instanceof NameObjectIdentifier noi ? new FunctionOperationAtom(name())
 				: new MethodOperationAtom(name());
 	}
 
@@ -554,7 +554,7 @@ INJECT CaseExpression :
 {
     @Override
     public OperationAtom operationAtom() {
-        return new CaseOperationAtom((getChild(1) instanceof org.eclipse.daanse.mdx.model.api.expression.MdxExpression) ? "_CaseMatch" : "_CaseTest");
+        return new CaseOperationAtom((get(1) instanceof org.eclipse.daanse.mdx.model.api.expression.MdxExpression) ? "_CaseMatch" : "_CaseTest");
     }
 }
 
@@ -576,11 +576,11 @@ INJECT MemberPropertyDefinition :
   implements org.eclipse.daanse.mdx.model.api.select.MemberPropertyDefinition
 {
     public org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier objectIdentifier() {
-        return (org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier) getChild(0);
+        return (org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier) getFirstChild();
     }
 
    public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
-        return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) getChild(2);
+        return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(2);
    }
 }
 
