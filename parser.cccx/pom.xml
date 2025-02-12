@@ -35,11 +35,11 @@
           </execution>
         </executions>
         <configuration>
-          <grammarFile>${project.basedir}/src/main/ccc/Grammer.ccc</grammarFile>
+          <sourceDirectory>${project.basedir}/src/main/ccc</sourceDirectory>
           <lang>java</lang>
           <jdk>17</jdk>
           <quiet>false</quiet>
-          <outputDir>${project.basedir}/src/gen/java</outputDir>
+          <outputDirectory>${project.basedir}/src/gen/java</outputDirectory>
         </configuration>
       </plugin>
       <plugin>
