@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
@@ -31,15 +34,20 @@ import org.eclipse.daanse.mdx.model.record.expression.CallExpressionR;
 import org.eclipse.daanse.mdx.model.record.expression.CompoundIdR;
 
 public class MdxParserUtil {
+    private static final Logger logger = LoggerFactory.getLogger(MdxParserUtil.class);
+
     private MdxParserUtil() {
     }
 
     public static String stripQuotes(String s, String prefix, String suffix, String quoted) {
+        logger.debug("Stripping quotes from string: '{}' with prefix: '{}', suffix: '{}'", s, prefix, suffix);
         if (!(s.startsWith(prefix) && s.endsWith(suffix))) {
+            logger.error("Invalid quotes in string: '{}' - expected prefix: '{}', suffix: '{}'", s, prefix, suffix);
             throw new IllegalArgumentException("Invalid quotes: " + s);
         }
         s = s.substring(prefix.length(), s.length() - suffix.length());
         s = s.replace(quoted, suffix);
+        logger.debug("Stripped quotes result: '{}'", s);
         return s;
     }
 
@@ -48,13 +56,18 @@ public class MdxParserUtil {
         final String name = objectIdentifier instanceof NameObjectIdentifier nameObjectIdentifier
                 ? nameObjectIdentifier.name()
                 : null;
+        logger.debug("Creating call with name: '{}', hasLeft: {}, hasExpressions: {}, propertyWords size: {}", name,
+                left != null, expressions != null, propertyWords != null ? propertyWords.size() : 0);
+
         if (expressions != null) {
             if (left != null) {
                 // Method syntax: "x.foo(arg1, arg2)" or "x.foo()"
+                logger.debug("Creating method call: '{}'  with {} arguments", name, expressions.size());
                 expressions.add(0, left);
                 return new CallExpressionR(new MethodOperationAtom(name), expressions);
             } else {
                 // Function syntax: "foo(arg1, arg2)" or "foo()"
+                logger.debug("Creating function call: '{}' with {} arguments", name, expressions.size());
                 return new CallExpressionR(new FunctionOperationAtom(name), expressions);
             }
         } else {
@@ -68,22 +81,28 @@ public class MdxParserUtil {
                 operationAtom = new PlainPropertyOperationAtom(name);
                 if (name != null && propertyWords.contains(name.toUpperCase())) {
                     call = true;
+                    logger.debug("Property '{}' is a reserved word, treating as call", name);
                 }
                 break;
             case QUOTED:
                 operationAtom = new QuotedPropertyOperationAtom(name);
+                logger.debug("Creating quoted property operation for: '{}'", name);
                 break;
             default:
                 operationAtom = new AmpersandQuotedPropertyOperationAtom(name);
+                logger.debug("Creating ampersand quoted property operation for: '{}'", name);
                 break;
             }
             if (left instanceof CompoundId compoundIdLeft && !call) {
                 List<ObjectIdentifier> newObjectIdentifiers = new ArrayList<>((compoundIdLeft).objectIdentifiers());
                 newObjectIdentifiers.add(objectIdentifier);
+                logger.debug("Extending compound ID with new identifier: '{}'", name);
                 return new CompoundIdR(newObjectIdentifiers);
             } else if (left == null) {
+                logger.debug("Creating simple compound ID for: '{}'", name);
                 return new CompoundIdR(List.of(objectIdentifier));
             } else {
+                logger.debug("Creating property call expression for: '{}'", name);
                 return new CallExpressionR(operationAtom, List.of(left));
             }
         }

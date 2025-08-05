@@ -516,6 +516,38 @@ class SelectStatementTest {
         assertThat(selectStatement).isNotNull();
     }
 
+    @Test
+    @SuppressWarnings("java:S5961")
+    void testQueryNewLine(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        String mdx = """
+                select {[customers].[foo
+                bar].members} on 0 from sales where gender.f
+                """;
+
+        SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
+        assertThat(selectStatement).isNotNull();
+        assertThat(selectStatement.selectSlicerAxisClause()).isNotNull();
+        assertThat(selectStatement.selectSlicerAxisClause().get()).isNotNull();
+        assertThat(selectStatement.selectSlicerAxisClause().get().expression()).isNotNull()
+                .isInstanceOf(CompoundId.class);
+
+    }
+
+    @Test
+    @SuppressWarnings("java:S5961")
+    void testQueryNewLine2(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        String mdx = """
+                SELECT NON EMPTY Hierarchize(AddCalculatedMembers(DrilldownMember({{DrilldownLevel({[Dimension].[Hierarchy].[All Hierarchys]})}}, {[Dimension].[Hierarchy].[new
+    line]}))) DIMENSION PROPERTIES PARENT_UNIQUE_NAME ON COLUMNS FROM [Cube] WHERE ([Measures].[theMeasure]) CELL PROPERTIES VALUE, FORMAT_STRING, LANGUAGE, BACK_COLOR, FORE_COLOR, FONT_FLAGS
+                """;
+
+        SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
+        assertThat(selectStatement).isNotNull();
+
+
+    }
+
+
     private void assertParseQuery(String mdx, @InjectService MdxParserProvider mdxParserProvider)
             throws MdxParserException {
         SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
