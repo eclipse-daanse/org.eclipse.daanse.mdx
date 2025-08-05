@@ -275,6 +275,7 @@ TOKEN #IdToken :
     < LBRACKET >
     (
       (~[ "]" ])
+    | "\t"
     | "\n"
     | "\r"
     | "\r\n"
