@@ -19,6 +19,7 @@ IGNORE_CASE = true;
 PARSER_PACKAGE = org.eclipse.daanse.mdx.parser.cccx;
 NODE_PACKAGE = org.eclipse.daanse.mdx.parser.cccx.tree;
 TABS_TO_SPACES = 4;
+PRESERVE_TABS = true;
 ENSURE_FINAL_EOL;
 SMART_NODE_CREATION=false;
 COPYRIGHT_BLURB="""
