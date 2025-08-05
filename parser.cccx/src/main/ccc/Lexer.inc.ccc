@@ -274,7 +274,7 @@ TOKEN #IdToken :
   < QUOTED_ID :
     < LBRACKET >
     (
-      (~[ "]", "\n", "\r" ])
+      (~[ "]" ])
     | ("]]")
     )*
     < RBRACKET >
