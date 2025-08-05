@@ -34,6 +34,7 @@ import org.eclipse.daanse.mdx.model.api.expression.operation.ParenthesesOperatio
 import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryEmptyClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
@@ -531,6 +532,25 @@ class SelectStatementTest {
         assertThat(selectStatement.selectSlicerAxisClause().get().expression()).isNotNull()
                 .isInstanceOf(CompoundId.class);
 
+    }
+
+    @Test
+    @SuppressWarnings("java:S5961")
+    void testQueryTab(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+
+        String mdx = "select {[customers].[foo"+"\t"+"bar].members} on 0 from sales where gender.f";
+
+        SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
+        assertThat(selectStatement).isNotNull();
+        assertThat(selectStatement.selectQueryClause()).isNotNull();
+        assertThat(selectStatement.selectQueryClause()).isNotNull();
+
+        SelectQueryClause sqc = selectStatement.selectQueryClause();
+        SelectQueryAxesClause sqac = (SelectQueryAxesClause) sqc;
+        CallExpression ce = (CallExpression) sqac.selectQueryAxisClauses().getLast().expression();
+        CallExpression ce2 = (CallExpression) ce.expressions().getLast();
+        CompoundId ci = (CompoundId) ce2.expressions().getFirst();
+        NameObjectIdentifier noi = (NameObjectIdentifier) ci.objectIdentifiers().getLast();
     }
 
     @Test
