@@ -298,7 +298,7 @@ TOKEN :
   < QUOTED_ID :
     < LBRACKET >
     (
-      (~[ "]", "\n", "\r" ])
+      (~[ "]" ])
     | ("]]")
     )*
     < RBRACKET >
