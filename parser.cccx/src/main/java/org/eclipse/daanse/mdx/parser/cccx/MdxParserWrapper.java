@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
@@ -39,32 +42,40 @@ import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 
 public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxParser {
 
+    private static final Logger logger = LoggerFactory.getLogger(MdxParserWrapper.class);
     private MdxParser delegate;
 
     public MdxParserWrapper(CharSequence mdx, Set<String> propertyWords) throws MdxParserException {
+        logger.debug("Creating MdxParserWrapper with mdx length: {}, propertyWords size: {}",
+                mdx != null ? mdx.length() : 0, propertyWords != null ? propertyWords.size() : 0);
 
         if (mdx == null) {
-
+            logger.error("MDX statement is null");
             throw new MdxParserException("statement must not be null");
         } else if (mdx.length() == 0) {
-
+            logger.error("MDX statement is empty");
             throw new MdxParserException("statement must not be empty");
         }
         try {
             delegate = new MdxParser(mdx);
             delegate.setPropertyWords(propertyWords);
+            logger.debug("MdxParserWrapper created successfully");
         } catch (Exception e) {
-
+            logger.error("Failed to create MdxParser delegate", e);
             throw new MdxParserException("statement must not be empty");
         }
     }
 
     @Override
     public MdxStatement parseMdxStatement() throws MdxParserException {
+        logger.debug("Parsing MDX statement");
         try {
-            return (MdxStatement) delegate.MdxStatement();
+            MdxStatement result = (MdxStatement) delegate.MdxStatement();
+            logger.debug("Successfully parsed MDX statement: {}", result.getClass().getSimpleName());
+            return result;
 
         } catch (Exception e) {
+            logger.error("Failed to parse MDX statement", e);
             throw new MdxParserException(e);
         } finally {
             dump();
@@ -75,6 +86,7 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     private void dump() {
         Node root = delegate.rootNode();
         if (root != null) {
+            logger.trace("Dumping parser AST");
             root.dump();
         }
     }
@@ -94,10 +106,14 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
 
     @Override
     public SelectStatement parseSelectStatement() throws MdxParserException {
+        logger.debug("Parsing SELECT statement");
         try {
             delegate.SelectStatement();
-            return (SelectStatement) delegate.peekNode();
+            SelectStatement result = (SelectStatement) delegate.peekNode();
+            logger.debug("Successfully parsed SELECT statement");
+            return result;
         } catch (Exception e) {
+            logger.error("Failed to parse SELECT statement", e);
             throw new MdxParserException(e);
         } finally {
             dump();
@@ -118,10 +134,14 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
 
     @Override
     public MdxExpression parseExpression() throws MdxParserException {
+        logger.debug("Parsing MDX expression");
         try {
             delegate.Expression();
-            return (MdxExpression) delegate.peekNode();
+            MdxExpression result = (MdxExpression) delegate.peekNode();
+            logger.debug("Successfully parsed MDX expression: {}", result.getClass().getSimpleName());
+            return result;
         } catch (Exception e) {
+            logger.error("Failed to parse MDX expression", e);
             throw new MdxParserException(e);
         } finally {
             dump();
