@@ -551,6 +551,7 @@ class SelectStatementTest {
         CallExpression ce2 = (CallExpression) ce.expressions().getLast();
         CompoundId ci = (CompoundId) ce2.expressions().getFirst();
         NameObjectIdentifier noi = (NameObjectIdentifier) ci.objectIdentifiers().getLast();
+        assertThat(noi.name()).isNotNull().isEqualTo("foo\tbar");
     }
 
     @Test
