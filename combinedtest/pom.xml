@@ -20,6 +20,11 @@
     <version>${revision}</version>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.combinedtest</artifactId>
+  <name>Daanse MDX Combined Test</name>
+  <description>Combined integration testing module for MDX components. Tests
+    complete MDX processing pipeline including multiple parser implementations
+    and unparser functionality to ensure end-to-end compatibility and
+    correctness.</description>
   <dependencies>
 
     <!--
@@ -32,13 +37,13 @@
     <dependency>
       <groupId>org.eclipse.daanse</groupId>
       <artifactId>org.eclipse.daanse.mdx.parser.ccc</artifactId>
-      <scope>runtime</scope>
+      <scope>test</scope>
       <version>${revision}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.daanse</groupId>
       <artifactId>org.eclipse.daanse.mdx.parser.cccx</artifactId>
-      <scope>runtime</scope>
+      <scope>test</scope>
       <version>${revision}</version>
     </dependency>
     <dependency>

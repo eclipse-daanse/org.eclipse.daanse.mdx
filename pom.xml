@@ -24,6 +24,13 @@
   <artifactId>org.eclipse.daanse.mdx</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
+  <name>Eclipse Daanse MDX Language Processing</name>
+  <description>Complete MDX (Multi-Dimensional Expressions) language processing
+    framework with advanced parsing, abstract syntax tree modeling, and code
+    generation capabilities. Provides comprehensive support for MDX statement
+    types including SELECT, drillthrough, DMV queries, and calculated
+    expressions with pluggable parser implementations and bidirectional text
+    conversion.</description>
 
   <properties>
     <revision>0.0.1-SNAPSHOT</revision>

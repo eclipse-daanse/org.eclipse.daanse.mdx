@@ -20,14 +20,16 @@ import java.util.Set;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
+import org.eclipse.daanse.mdx.parser.ccc.CCCMdxParserProvider;
+import org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider;
 import org.eclipse.daanse.mdx.unparser.api.UnParser;
 import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.osgi.test.common.annotation.InjectService;
+import org.osgi.test.common.service.ServiceAware;
 
 @RequireServiceComponentRuntime
 class UnparseParsedTest {
-    public static final String CCC_PROVIDER = "org.eclipse.daanse.mdx.parser.ccc.MdxParserProviderImpl";
-    public static final String CCCX_PROVIDER = "org.eclipse.daanse.mdx.parser.cccx.MdxParserProviderImpl";
+
     public static Set<String> reservedWords = Set.of("ORDINAL", "VALUE", "DATAMEMBER", "MEMBER_CAPTION", "FIRSTSIBLING",
             "CURRENTMEMBER", "CURRENTORDINAL", "DIMENSION", "LASTSIBLING", "PARENT", "NEXTMEMBER", "UNIQUE_NAME",
             "UNIQUENAME", "MEMBERS", "SIBLINGS", "ORDERKEY", "DEFAULTMEMBER", "LEVEL", "FIRSTCHILD", "LASTCHILD",
@@ -87,7 +89,7 @@ class UnparseParsedTest {
 
     @org.junit.jupiter.api.Test
     void testFullStatement(
-            @InjectService(filter = "(component.name=" + CCC_PROVIDER + ")") MdxParserProvider mdxParserProvider,
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider)") MdxParserProvider mdxParserProvider,
             @InjectService UnParser unParser) throws MdxParserException {
 
         MdxStatement mdxStatement = mdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();
@@ -97,8 +99,9 @@ class UnparseParsedTest {
     }
 
     @org.junit.jupiter.api.Test
-    void test(@InjectService(filter = "(component.name=" + CCC_PROVIDER + ")") MdxParserProvider cccMdxParserProvider,
-            @InjectService(filter = "(component.name=" + CCCX_PROVIDER + ")") MdxParserProvider cccxMdxParserProvider)
+    void test(
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider)") MdxParserProvider cccMdxParserProvider,
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.ccc.CCCMdxParserProvider)") MdxParserProvider cccxMdxParserProvider)
             throws MdxParserException {
 
         MdxStatement mdxStatement = cccMdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();
@@ -106,6 +109,15 @@ class UnparseParsedTest {
 
         mdxStatement = cccxMdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();
         assertThat(mdxStatement).isNotNull();
+
+    }
+
+    @org.junit.jupiter.api.Test
+    void testFullStatement(@InjectService() ServiceAware<MdxParserProvider> mdxParserProvider) {
+
+        mdxParserProvider.getServiceReferences().forEach(sr ->
+
+        System.out.println(sr.getProperties()));
 
     }
 

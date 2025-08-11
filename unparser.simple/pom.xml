@@ -21,6 +21,10 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.unparser.simple</artifactId>
+  <name>Daanse MDX Unparser Simple</name>
+  <description>Simple implementation of MDX unparser API. Provides basic
+    functionality for converting MDX model objects back to MDX query strings
+    with configurable formatting options and OSGi service integration.</description>
   <dependencies>
     <dependency>
       <groupId>org.eclipse.daanse</groupId>

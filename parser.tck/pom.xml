@@ -20,6 +20,11 @@
     <version>${revision}</version>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.parser.tck</artifactId>
+  <name>Daanse MDX Parser TCK</name>
+  <description>Technology Compatibility Kit (TCK) for MDX parser
+    implementations. Provides comprehensive test suites and compliance testing
+    framework to validate MDX parser behavior, syntax support, and specification
+    conformance.</description>
   <properties>
     <sonar.exclusions>src/**/tck/**/*</sonar.exclusions>
   </properties>

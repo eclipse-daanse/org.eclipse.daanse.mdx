@@ -21,6 +21,11 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.unparser.api</artifactId>
+  <name>Daanse MDX Unparser API</name>
+  <description>API definitions for MDX unparsing services. Defines interfaces
+    for converting MDX model objects back to MDX query strings, enabling
+    round-trip parsing and query generation capabilities within the Daanse
+    framework.</description>
 
   <dependencies>
     <dependency>
