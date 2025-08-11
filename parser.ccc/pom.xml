@@ -20,6 +20,10 @@
     <version>${revision}</version>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.parser.ccc</artifactId>
+  <name>Daanse MDX Parser CCC Implementation</name>
+  <description>MDX (Multi-Dimensional Expressions) parser implementation using
+    CongoCC parser generator. This module provides a generated parser for MDX
+    queries that produces record-based model objects for further processing.</description>
 
   <build>
     <plugins>

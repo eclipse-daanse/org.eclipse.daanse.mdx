@@ -20,6 +20,10 @@
     <version>${revision}</version>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.model.record</artifactId>
+  <name>Daanse MDX Model Record</name>
+  <description>Record-based implementation of MDX model API. Provides immutable
+    Java record classes for representing MDX statements, expressions, and query
+    components with efficient memory usage and strong type safety.</description>
   <dependencies>
     <dependency>
       <groupId>org.eclipse.daanse</groupId>

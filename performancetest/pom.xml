@@ -20,6 +20,10 @@
     <version>${revision}</version>
   </parent>
   <artifactId>org.eclipse.daanse.mdx.performancetest</artifactId>
+  <name>Daanse MDX Performance Test</name>
+  <description>Performance testing framework for MDX parsing and processing.
+    Uses JMH (Java Microbenchmark Harness) to measure and compare performance of
+    different MDX parser implementations and processing strategies.</description>
   <dependencies>
 
     <!--
