@@ -19,9 +19,12 @@ import org.eclipse.daanse.mdx.parser.api.MdxParser;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ServiceScope;
 
-@Component(service = MdxParserProvider.class)
-public class MdxParserProviderImpl implements MdxParserProvider {
+@Component(scope = ServiceScope.SINGLETON, configurationPid = CCCXMdxParserProvider.PID, service = MdxParserProvider.class)
+public class CCCXMdxParserProvider implements MdxParserProvider {
+
+    public static final String PID = "daanse.mdx.parser.cccx.CCCXMdxParserProvider";
 
     @Override
     public MdxParser newParser(CharSequence mdx, Set<String> propertyWords) throws MdxParserException {
