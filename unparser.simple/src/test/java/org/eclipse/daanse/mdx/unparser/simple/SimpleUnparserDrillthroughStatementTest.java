@@ -31,7 +31,7 @@ import org.eclipse.daanse.mdx.model.record.expression.NameObjectIdentifierR;
 import org.eclipse.daanse.mdx.model.record.select.AxisR;
 import org.eclipse.daanse.mdx.model.record.select.SelectQueryAxesClauseR;
 import org.eclipse.daanse.mdx.model.record.select.SelectQueryAxisClauseR;
-import org.eclipse.daanse.mdx.model.record.select.SelectSubcubeClauseNameR;
+import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseNameR;
 import org.junit.jupiter.api.Test;
 
 class SimpleUnparserDrillthroughStatementTest {
@@ -50,7 +50,7 @@ class SimpleUnparserDrillthroughStatementTest {
                                         List.of(new NameObjectIdentifierR("2001", ObjectIdentifier.Quoting.QUOTED))))),
                 new AxisR(0, true), null)));
         SelectStatement selectStatement = new SelectStatementR(List.of(), selectQueryClause,
-                new SelectSubcubeClauseNameR(
+                new SelectCubeClauseNameR(
                         new NameObjectIdentifierR("Adventure Works", ObjectIdentifier.Quoting.QUOTED)),
                 Optional.ofNullable(null), Optional.ofNullable(null));
         DrillthroughStatement drillthroughStatement = new DrillthroughStatementR(Optional.of(10), Optional.of(1),

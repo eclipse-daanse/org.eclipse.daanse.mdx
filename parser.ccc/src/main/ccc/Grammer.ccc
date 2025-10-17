@@ -12,6 +12,7 @@
 *   Stefan Bischof (bipolis.org) - initial
 */
 
+
 // https://docs.oracle.com/cd/E57185_01/ESBTR/mdx_syn_gram.html
 // https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms717923(v=vs.85)
 BASE_NAME = Mdx;
@@ -75,9 +76,9 @@ import org.eclipse.daanse.mdx.model.api.select.UpdateClause;
 import org.eclipse.daanse.mdx.model.api.select.Allocation;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 import org.eclipse.daanse.mdx.model.record.DrillthroughStatementR;
 import org.eclipse.daanse.mdx.model.record.ExplainStatementR;
@@ -105,8 +106,8 @@ import org.eclipse.daanse.mdx.model.record.select.SelectQueryAxisClauseR;
 import org.eclipse.daanse.mdx.model.record.select.UpdateClauseR;
 import org.eclipse.daanse.mdx.model.record.select.SelectQueryEmptyClauseR;
 import org.eclipse.daanse.mdx.model.record.select.SelectSlicerAxisClauseR;
-import org.eclipse.daanse.mdx.model.record.select.SelectSubcubeClauseNameR;
-import org.eclipse.daanse.mdx.model.record.select.SelectSubcubeClauseStatementR;
+import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseNameR;
+import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseSubStatementR;
 import org.eclipse.daanse.mdx.model.record.RefreshStatementR;
 import org.eclipse.daanse.mdx.model.record.UpdateStatementR;
 import org.eclipse.daanse.mdx.model.record.DMVStatementR;
@@ -572,7 +573,7 @@ SelectStatement parseSelectStatement :
 {
   List<SelectWithClause> selectWithClauses = new LinkedList<>();
   SelectQueryClause selectQueryClause = null;
-  SelectSubcubeClause selectSubcubeClause = null;
+  SelectCubeClause SelectCubeClause = null;
   Optional<SelectSlicerAxisClause> selectSlicerAxisClause = Optional.empty();
   SelectCellPropertyListClause selectCellPropertyListClause = null;
   SelectWithClause selectWithClause = null;
@@ -601,7 +602,7 @@ SelectStatement parseSelectStatement :
       selectQueryClause = new SelectQueryEmptyClauseR();
     }
   )
-  < FROM > selectSubcubeClause = parseSelectSubcubeClause
+  < FROM > SelectCubeClause = parseSelectCubeClause
   (
     selectSlicerAxisClause = parseSelectSlicerAxisClause
   )?
@@ -609,41 +610,41 @@ SelectStatement parseSelectStatement :
     selectCellPropertyListClause = parseSelectCellPropertyListClause
   )?
   {
-    return new SelectStatementR(selectWithClauses, selectQueryClause, selectSubcubeClause, selectSlicerAxisClause, Optional.ofNullable(selectCellPropertyListClause));
+    return new SelectStatementR(selectWithClauses, selectQueryClause, SelectCubeClause, selectSlicerAxisClause, Optional.ofNullable(selectCellPropertyListClause));
   }
 ;
 
 
-SelectSubcubeClause parseSelectSubcubeClause :
+SelectCubeClause parseSelectCubeClause :
 {
-  SelectSubcubeClause selectSubcubeClause = null;
+  SelectCubeClause SelectCubeClause = null;
 }
   (
-    selectSubcubeClause = parseSelectSubcubeClauseName
+    SelectCubeClause = parseSelectCubeClauseName
   |
-    selectSubcubeClause = parseSelectSubcubeClauseStatement
+    SelectCubeClause = parseSelectCubeClauseSubStatement
   )
   {
-    return selectSubcubeClause;
+    return SelectCubeClause;
   }
 ;
 
 
-SelectSubcubeClauseName parseSelectSubcubeClauseName :
+SelectCubeClauseName parseSelectCubeClauseName :
 {
   NameObjectIdentifier nameObjectIdentifier;
 }
   nameObjectIdentifier = parseNameObjectIdentifier
   {
-    return new SelectSubcubeClauseNameR(nameObjectIdentifier);
+    return new SelectCubeClauseNameR(nameObjectIdentifier);
   }
 ;
 
 
-SelectSubcubeClauseStatement parseSelectSubcubeClauseStatement :
+SelectCubeClauseSubStatement parseSelectCubeClauseSubStatement :
 {
   SelectQueryClause selectQueryClause = null;
-  SelectSubcubeClause selectSubcubeClause = null;
+  SelectCubeClause SelectCubeClause = null;
   Optional<SelectSlicerAxisClause> selectSlicerAxisClause = Optional.empty();
 }
   (
@@ -656,14 +657,14 @@ SelectSubcubeClauseStatement parseSelectSubcubeClauseStatement :
           selectQueryClause = new SelectQueryEmptyClauseR();
        }
     )?
-    < FROM > selectSubcubeClause = parseSelectSubcubeClause
+    < FROM > SelectCubeClause = parseSelectCubeClause
     (
       selectSlicerAxisClause = parseSelectSlicerAxisClause
     )?
     < RPAREN >
   )
   {
-    return new SelectSubcubeClauseStatementR(selectQueryClause, selectSubcubeClause, selectSlicerAxisClause);
+    return new SelectCubeClauseSubStatementR(selectQueryClause, SelectCubeClause, selectSlicerAxisClause);
   }
 ;
 

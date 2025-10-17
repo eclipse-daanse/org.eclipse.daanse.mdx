@@ -36,7 +36,7 @@ import org.eclipse.daanse.mdx.model.api.select.SelectQueryAsteriskClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 
@@ -149,10 +149,10 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     }
 
     @Override
-    public SelectSubcubeClause parseSelectSubcubeClause() throws MdxParserException {
+    public SelectCubeClause parseSelectCubeClause() throws MdxParserException {
         try {
-            delegate.SelectSubcubeClause();
-            return (SelectSubcubeClause) delegate.peekNode();
+            delegate.SelectCubeClause();
+            return (SelectCubeClause) delegate.peekNode();
         } catch (Exception e) {
             throw new MdxParserException(e);
         } finally {

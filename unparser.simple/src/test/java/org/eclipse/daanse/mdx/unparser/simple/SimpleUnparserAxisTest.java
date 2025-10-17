@@ -30,9 +30,9 @@ import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.record.SelectStatementR;
 import org.eclipse.daanse.mdx.model.record.expression.CallExpressionR;
 import org.eclipse.daanse.mdx.model.record.expression.CompoundIdR;
@@ -41,7 +41,7 @@ import org.eclipse.daanse.mdx.model.record.expression.NameObjectIdentifierR;
 import org.eclipse.daanse.mdx.model.record.select.AxisR;
 import org.eclipse.daanse.mdx.model.record.select.SelectQueryAxesClauseR;
 import org.eclipse.daanse.mdx.model.record.select.SelectQueryAxisClauseR;
-import org.eclipse.daanse.mdx.model.record.select.SelectSubcubeClauseNameR;
+import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseNameR;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +60,7 @@ class SimpleUnparserAxisTest {
                                         List.of(new NameObjectIdentifierR("2001", ObjectIdentifier.Quoting.QUOTED))))),
                 new AxisR(0, true), null)));
         SelectStatement selectStatement = new SelectStatementR(List.of(), selectQueryClause,
-                new SelectSubcubeClauseNameR(
+                new SelectCubeClauseNameR(
                         new NameObjectIdentifierR("Adventure Works", ObjectIdentifier.Quoting.QUOTED)),
                 Optional.ofNullable(null), Optional.ofNullable(null));
         assertThat(unparser.unparseSelectStatement(selectStatement)).asString()
@@ -69,9 +69,9 @@ class SimpleUnparserAxisTest {
 
     @Disabled
     @Test
-    void testSelectSubcubeClause() {
-        SelectSubcubeClauseName selectStatementName = selectSubcubeClauseName("c", Quoting.QUOTED);
-        assertThat(unparser.unparseSelectSubcubeClause(selectStatementName)).asString().isEqualTo("[c]");
+    void testSelectCubeClause() {
+        SelectCubeClauseName selectStatementName = selectCubeClauseName("c", Quoting.QUOTED);
+        assertThat(unparser.unparseSelectCubeClause(selectStatementName)).asString().isEqualTo("[c]");
         SelectQueryAxisClause selectQueryAxisClause = new SelectQueryAxisClauseR(false, new CallExpressionR(
                 new PlainPropertyOperationAtom("Membmers"),
                 List.of(new CompoundIdR(List.of(new NameObjectIdentifierR("Customer", ObjectIdentifier.Quoting.QUOTED),
@@ -80,18 +80,18 @@ class SimpleUnparserAxisTest {
                 new AxisR(0, true), null);
         SelectQueryAxesClause selectQueryAxesClause = new SelectQueryAxesClauseR(List.of(selectQueryAxisClause));
 
-        SelectSubcubeClauseStatement selectStatementsStatement = selectStatementsStatement(selectQueryAxesClause,
+        SelectCubeClauseSubStatement selectStatementsStatement = selectStatementsStatement(selectQueryAxesClause,
                 selectStatementName, Optional.ofNullable(null));
-        assertThat(unparser.unparseSelectSubcubeClause(selectStatementsStatement)).asString().isEqualTo(
+        assertThat(unparser.unparseSelectCubeClause(selectStatementsStatement)).asString().isEqualTo(
                 " ( \r\n  SELECT \r\n[Customer].[Gender].[Gender].Membmers ON COLUMNS FROM \r\n[c]\r\n ) \r\n");
     }
 
-    private SelectSubcubeClauseStatement selectStatementsStatement(SelectQueryClause selectQueryClause,
-            SelectSubcubeClause selectSubcubeClause, Optional<SelectSlicerAxisClause> selectSlicerAxisClause) {
-        SelectSubcubeClauseStatement sscs = mock(SelectSubcubeClauseStatement.class);
+    private SelectCubeClauseSubStatement selectStatementsStatement(SelectQueryClause selectQueryClause,
+            SelectCubeClause selectCubeClause, Optional<SelectSlicerAxisClause> selectSlicerAxisClause) {
+        SelectCubeClauseSubStatement sscs = mock(SelectCubeClauseSubStatement.class);
 
         when(sscs.selectQueryClause()).thenReturn(selectQueryClause);
-        when(sscs.selectSubcubeClause()).thenReturn(selectSubcubeClause);
+        when(sscs.selectCubeClause()).thenReturn(selectCubeClause);
         when(sscs.selectSlicerAxisClause()).thenReturn(selectSlicerAxisClause);
 
         return sscs;
@@ -99,31 +99,31 @@ class SimpleUnparserAxisTest {
 
     @Disabled
     @Test
-    void testSelectSubcubeClauseName() throws Exception {
+    void testSelectCubeClauseName() throws Exception {
 
         // "cube"-> Reserved Word but quoted
 
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("c", Quoting.UNQUOTED))).asString()
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("c", Quoting.UNQUOTED))).asString()
                 .isEqualTo("c");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("c", Quoting.QUOTED))).asString()
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("c", Quoting.QUOTED))).asString()
                 .isEqualTo("[c]");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("cube", Quoting.QUOTED))).asString()
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("cube", Quoting.QUOTED))).asString()
                 .isEqualTo("[cube]");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("with whitespace", Quoting.QUOTED)))
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("with whitespace", Quoting.QUOTED)))
                 .asString().isEqualTo("[with whitespace]");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("with [inner]", Quoting.QUOTED)))
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("with [inner]", Quoting.QUOTED)))
                 .asString().isEqualTo("[with [inner]]]");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName("1", Quoting.QUOTED))).asString()
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName("1", Quoting.QUOTED))).asString()
                 .isEqualTo("[1]");
-        assertThat(unparser.unparseSelectSubcubeClauseName(selectSubcubeClauseName(".", Quoting.QUOTED))).asString()
+        assertThat(unparser.unparseSelectCubeClauseName(selectCubeClauseName(".", Quoting.QUOTED))).asString()
                 .isEqualTo("[.]");
 
     }
 
-    private SelectSubcubeClauseName selectSubcubeClauseName(String name, Quoting quoting) {
+    private SelectCubeClauseName selectCubeClauseName(String name, Quoting quoting) {
         NameObjectIdentifier noi = nameObjectIdentifier(name, quoting);
 
-        SelectSubcubeClauseName sccn = mock(SelectSubcubeClauseName.class);
+        SelectCubeClauseName sccn = mock(SelectCubeClauseName.class);
         when(sccn.cubeName()).thenReturn(noi);
         return sccn;
     }

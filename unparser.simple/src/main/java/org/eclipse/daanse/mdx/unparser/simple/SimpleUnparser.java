@@ -65,9 +65,9 @@ import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryEmptyClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 import org.eclipse.daanse.mdx.unparser.api.UnParser;
 import org.osgi.service.component.annotations.Activate;
@@ -128,7 +128,7 @@ public class SimpleUnparser implements UnParser {
         sb = sb.append("SELECT ");
         sb = sb.append(unparseSelectQueryClause(selectStatement.selectQueryClause()));
         sb = sb.append(" FROM ");
-        sb = sb.append(unparseSelectSubcubeClause(selectStatement.selectSubcubeClause()));
+        sb = sb.append(unparseSelectCubeClause(selectStatement.selectCubeClause()));
 
         Optional<SelectSlicerAxisClause> ssac = selectStatement.selectSlicerAxisClause();
         if (ssac.isPresent()) {
@@ -174,19 +174,19 @@ public class SimpleUnparser implements UnParser {
         return sb.append(unparseExpression(clause.expression()));
     }
 
-    public StringBuilder unparseSelectSubcubeClause(SelectSubcubeClause clause) {
+    public StringBuilder unparseSelectCubeClause(SelectCubeClause clause) {
 
-        if (clause instanceof SelectSubcubeClauseName sscn) {
-            return unparseSelectSubcubeClauseName(sscn);
+        if (clause instanceof SelectCubeClauseName sscn) {
+            return unparseSelectCubeClauseName(sscn);
         }
-        if (clause instanceof SelectSubcubeClauseStatement sscs) {
-            return unparseSelectSubcubeClauseStatement(sscs);
+        if (clause instanceof SelectCubeClauseSubStatement sscs) {
+            return unparseSelectCubeClauseSubStatement(sscs);
         }
 
         return null;
     }
 
-    public StringBuilder unparseSelectSubcubeClauseStatement(SelectSubcubeClauseStatement clause) {
+    public StringBuilder unparseSelectCubeClauseSubStatement(SelectCubeClauseSubStatement clause) {
         StringBuilder sb = new StringBuilder();
 
         Optional<SelectSlicerAxisClause> sOptional = clause.selectSlicerAxisClause();
@@ -195,7 +195,7 @@ public class SimpleUnparser implements UnParser {
         sb.append("  SELECT \r\n");
         sb.append(unparseSelectQueryClause(clause.selectQueryClause()));
         sb.append(" FROM \r\n");
-        sb.append(unparseSelectSubcubeClause(clause.selectSubcubeClause()));
+        sb.append(unparseSelectCubeClause(clause.selectCubeClause()));
 
         if (sOptional.isPresent()) {
 
@@ -207,7 +207,7 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseSelectSubcubeClauseName(SelectSubcubeClauseName clause) {
+    public StringBuilder unparseSelectCubeClauseName(SelectCubeClauseName clause) {
 
         return unparseNameObjectIdentifier(clause.cubeName());
     }

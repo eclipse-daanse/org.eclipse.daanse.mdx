@@ -11,11 +11,16 @@
 *   SmartCity Jena - initial
 *   Stefan Bischof (bipolis.org) - initial
 */
-package org.eclipse.daanse.mdx.model.record.select;
+package org.eclipse.daanse.mdx.model.api.select;
 
-import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
+import java.util.Optional;
 
-public record SelectSubcubeClauseNameR(NameObjectIdentifier cubeName) implements SelectSubcubeClauseName {
+public non-sealed interface SelectCubeClauseSubStatement extends SelectCubeClause {
+
+    SelectQueryClause selectQueryClause();
+
+    SelectCubeClause selectCubeClause();
+
+    Optional<SelectSlicerAxisClause> selectSlicerAxisClause();
 
 }
