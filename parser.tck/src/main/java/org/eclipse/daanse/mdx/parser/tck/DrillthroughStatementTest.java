@@ -19,7 +19,7 @@ import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Test;
@@ -41,12 +41,12 @@ class DrillthroughStatementTest {
         assertThat(clause.firstRowSet()).isNotPresent();
         assertThat(clause.maxRows()).isPresent().contains(10);
         assertThat(clause.selectStatement()).isNotNull();
-        assertThat(clause.selectStatement().selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseName.class);
-        SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) clause.selectStatement()
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
-        assertThat(selectSubcubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
+        assertThat(clause.selectStatement().selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseName.class);
+        SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) clause.selectStatement()
+                .selectCubeClause();
+        assertThat(selectCubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
+        assertThat(selectCubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
         assertThat(clause.returnItems()).isNull();
     }
 
@@ -64,12 +64,12 @@ class DrillthroughStatementTest {
         assertThat(clause.firstRowSet()).isPresent().contains(1);
         assertThat(clause.maxRows()).isPresent().contains(10);
         assertThat(clause.selectStatement()).isNotNull();
-        assertThat(clause.selectStatement().selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseName.class);
-        SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) clause.selectStatement()
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
-        assertThat(selectSubcubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
+        assertThat(clause.selectStatement().selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseName.class);
+        SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) clause.selectStatement()
+                .selectCubeClause();
+        assertThat(selectCubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
+        assertThat(selectCubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
         assertThat(clause.returnItems()).isNotNull().hasSize(1);
         assertThat(clause.returnItems().get(0).compoundId()).isNotNull();
         assertThat(clause.returnItems().get(0).compoundId().objectIdentifiers()).isNotNull().hasSize(1);

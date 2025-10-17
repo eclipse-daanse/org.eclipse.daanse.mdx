@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkAxis;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkNameObjectIdentifiers;
-import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectSubcubeClauseName;
+import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectCubeClauseName;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
@@ -28,9 +28,9 @@ import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.operation.BracesOperationAtom;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Nested;
@@ -39,29 +39,29 @@ import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.osgi.test.common.annotation.InjectService;
 
 @RequireServiceComponentRuntime
-class SelectSubCubeClauseTest {
+class SelectCubeClauseTest {
 
     @Nested
-    class SelectSubCubeClauseNameTest {
+    class SelectCubeClauseNameTest {
 
         @Test
         void testUnQuoted(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
-            SelectSubcubeClause selectSubcubeClause = mdxParserProvider.newParser("subcube", propertyWords)
-                    .parseSelectSubcubeClause();
-            assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-            SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) selectSubcubeClause;
-            assertThat(selectSubcubeClauseName.cubeName()).isNotNull();
-            assertThat(selectSubcubeClauseName.cubeName().name()).isNotNull().isEqualTo("subcube");
-            assertThat(selectSubcubeClauseName.cubeName().quoting()).isNotNull()
+            SelectCubeClause selectCubeClause = mdxParserProvider.newParser("subcube", propertyWords)
+                    .parseSelectCubeClause();
+            assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+            SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) selectCubeClause;
+            assertThat(selectCubeClauseName.cubeName()).isNotNull();
+            assertThat(selectCubeClauseName.cubeName().name()).isNotNull().isEqualTo("subcube");
+            assertThat(selectCubeClauseName.cubeName().quoting()).isNotNull()
                     .isEqualTo(ObjectIdentifier.Quoting.UNQUOTED);
         }
 
         @Test
         void testQuoted(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
-            SelectSubcubeClause selectSubcubeClause = mdxParserProvider.newParser("[subcube]", propertyWords)
-                    .parseSelectSubcubeClause();
-            assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-            checkSelectSubcubeClauseName((SelectSubcubeClauseName) selectSubcubeClause, "subcube",
+            SelectCubeClause selectCubeClause = mdxParserProvider.newParser("[subcube]", propertyWords)
+                    .parseSelectCubeClause();
+            assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+            checkSelectCubeClauseName((SelectCubeClauseName) selectCubeClause, "subcube",
                     ObjectIdentifier.Quoting.QUOTED);
         }
 
@@ -73,30 +73,30 @@ class SelectSubCubeClauseTest {
     }
 
     @Nested
-    class SelectSubCubeClauseStatementTest {
+    class SelectCubeClauseSubStatementTest {
 
         @Test
-        void testSingleSubCube(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
-            SelectSubcubeClause selectSubcubeClause = mdxParserProvider
+        void testSingleCube(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+            SelectCubeClause selectCubeClause = mdxParserProvider
                     .newParser("(SELECT {[Date].[Calendar].[Calendar Year].&[2001]} ON 0 FROM [Adventure Works])",
                             propertyWords)
-                    .parseSelectSubcubeClause();
-            checkSelectSubcubeClauseStatement(selectSubcubeClause);
-            assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseStatement.class);
-            SelectSubcubeClauseStatement selectSubcubeClauseStatement = (SelectSubcubeClauseStatement) selectSubcubeClause;
-            checkSelectSubcubeClauseName(selectSubcubeClauseStatement.selectSubcubeClause(), "Adventure Works",
+                    .parseSelectCubeClause();
+            checkSelectCubeClauseSubStatement(selectCubeClause);
+            assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseSubStatement.class);
+            SelectCubeClauseSubStatement selectCubeClauseSubStatement = (SelectCubeClauseSubStatement) selectCubeClause;
+            checkSelectCubeClauseName(selectCubeClauseSubStatement.selectCubeClause(), "Adventure Works",
                     ObjectIdentifier.Quoting.QUOTED);
-            assertThat(selectSubcubeClauseStatement.selectSlicerAxisClause()).isNotNull().isNotPresent();
+            assertThat(selectCubeClauseSubStatement.selectSlicerAxisClause()).isNotNull().isNotPresent();
         }
 
         // (SELECT {[Date].[Calendar].[Calendar Year].&[2001]} ON 0 FROM
-        static void checkSelectSubcubeClauseStatement(SelectSubcubeClause selectSubcubeClause) {
-            assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseStatement.class);
-            SelectSubcubeClauseStatement selectSubcubeClauseStatement = (SelectSubcubeClauseStatement) selectSubcubeClause;
+        static void checkSelectCubeClauseSubStatement(SelectCubeClause selectCubeClause) {
+            assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseSubStatement.class);
+            SelectCubeClauseSubStatement selectCubeClauseSubStatement = (SelectCubeClauseSubStatement) selectCubeClause;
 
-            assertThat(selectSubcubeClauseStatement.selectQueryClause()).isNotNull();
-            assertThat(selectSubcubeClauseStatement.selectQueryClause()).isInstanceOf(SelectQueryAxesClause.class);
-            SelectQueryAxesClause selectQueryAxesClause = (SelectQueryAxesClause) selectSubcubeClauseStatement
+            assertThat(selectCubeClauseSubStatement.selectQueryClause()).isNotNull();
+            assertThat(selectCubeClauseSubStatement.selectQueryClause()).isInstanceOf(SelectQueryAxesClause.class);
+            SelectQueryAxesClause selectQueryAxesClause = (SelectQueryAxesClause) selectCubeClauseSubStatement
                     .selectQueryClause();
             assertThat(selectQueryAxesClause.selectQueryAxisClauses()).hasSize(1);
             SelectQueryAxisClause selectQueryAxisClause = selectQueryAxesClause.selectQueryAxisClauses().get(0);
@@ -127,22 +127,22 @@ class SelectSubCubeClauseTest {
     }
 
     @Test
-    void testMultiSubCube(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+    void testMultiCube(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
 
-        SelectSubcubeClause selectSubcubeClause = mdxParserProvider.newParser(
+        SelectCubeClause selectCubeClause = mdxParserProvider.newParser(
                 "(SELECT {[Date].[Calendar].[Calendar Year].&[2001]} ON 0 FROM (SELECT {test} ON 0 FROM [cube]))",
-                propertyWords).parseSelectSubcubeClause();
-        assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseStatement.class);
-        SelectSubcubeClauseStatement selectSubcubeClauseStatement = (SelectSubcubeClauseStatement) selectSubcubeClause;
-        SelectSubCubeClauseStatementTest.checkSelectSubcubeClauseStatement(selectSubcubeClause);
+                propertyWords).parseSelectCubeClause();
+        assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseSubStatement.class);
+        SelectCubeClauseSubStatement selectCubeClauseSubStatement = (SelectCubeClauseSubStatement) selectCubeClause;
+        SelectCubeClauseSubStatementTest.checkSelectCubeClauseSubStatement(selectCubeClause);
 
-        assertThat(selectSubcubeClauseStatement.selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseStatement.class);
-        SelectSubcubeClauseStatement selectSubcubeClauseStatementInner = (SelectSubcubeClauseStatement) selectSubcubeClauseStatement
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseStatementInner.selectSubcubeClause()).isNotNull();
+        assertThat(selectCubeClauseSubStatement.selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseSubStatement.class);
+        SelectCubeClauseSubStatement selectCubeClauseSubStatementInner = (SelectCubeClauseSubStatement) selectCubeClauseSubStatement
+                .selectCubeClause();
+        assertThat(selectCubeClauseSubStatementInner.selectCubeClause()).isNotNull();
 
-        SelectQueryAxesClause selectQueryAxesClauseInner = (SelectQueryAxesClause) selectSubcubeClauseStatementInner
+        SelectQueryAxesClause selectQueryAxesClauseInner = (SelectQueryAxesClause) selectCubeClauseSubStatementInner
                 .selectQueryClause();
         assertThat(selectQueryAxesClauseInner.selectQueryAxisClauses()).hasSize(1);
         SelectQueryAxisClause selectQueryAxisClauseInner = selectQueryAxesClauseInner.selectQueryAxisClauses().get(0);
@@ -158,11 +158,11 @@ class SelectSubCubeClauseTest {
         CompoundId compoundIdInner = (CompoundId) callExpressionInner.expressions().get(0);
         assertThat(compoundIdInner.objectIdentifiers()).isNotNull().hasSize(1);
         checkNameObjectIdentifiers(compoundIdInner.objectIdentifiers(), 0, "test", ObjectIdentifier.Quoting.UNQUOTED);
-        assertThat(selectSubcubeClauseStatementInner.selectSlicerAxisClause()).isNotNull().isNotPresent();
+        assertThat(selectCubeClauseSubStatementInner.selectSlicerAxisClause()).isNotNull().isNotPresent();
 
-        assertThat(selectSubcubeClauseStatementInner.selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseName.class);
-        checkSelectSubcubeClauseName((SelectSubcubeClauseName) selectSubcubeClauseStatementInner.selectSubcubeClause(),
+        assertThat(selectCubeClauseSubStatementInner.selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseName.class);
+        checkSelectCubeClauseName((SelectCubeClauseName) selectCubeClauseSubStatementInner.selectCubeClause(),
                 "cube", ObjectIdentifier.Quoting.QUOTED);
     }
 }

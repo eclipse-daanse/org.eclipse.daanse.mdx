@@ -15,7 +15,7 @@ package org.eclipse.daanse.mdx.parser.tck;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
-import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectSubcubeClauseName;
+import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectCubeClauseName;
 import static org.eclipse.daanse.mdx.parser.tck.SelectQueryAxisClauseTest.checkSelectQueryAxisClause1;
 import static org.eclipse.daanse.mdx.parser.tck.SelectQueryAxisClauseTest.checkSelectQueryAxisClause2;
 import static org.eclipse.daanse.mdx.parser.tck.SelectSlicerAxisClauseTest.checkSelectSlicerAxisClause1;
@@ -25,7 +25,7 @@ import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Test;
@@ -60,8 +60,8 @@ class MdxStatementTest {
         checkSelectQueryAxisClause1(selectQueryAxisClause1);
         checkSelectQueryAxisClause2(selectQueryAxisClause2);
 
-        assertThat(selectStatement.selectSubcubeClause()).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-        checkSelectSubcubeClauseName(selectStatement.selectSubcubeClause(), "Adventure Works",
+        assertThat(selectStatement.selectCubeClause()).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+        checkSelectCubeClauseName(selectStatement.selectCubeClause(), "Adventure Works",
                 ObjectIdentifier.Quoting.QUOTED);
 
         assertThat(selectStatement.selectSlicerAxisClause()).isPresent();
@@ -98,8 +98,8 @@ class MdxStatementTest {
         checkSelectQueryAxisClause1(selectQueryAxisClause1);
         checkSelectQueryAxisClause2(selectQueryAxisClause2);
 
-        assertThat(selectStatement.selectSubcubeClause()).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-        checkSelectSubcubeClauseName(selectStatement.selectSubcubeClause(), "Adventure Works",
+        assertThat(selectStatement.selectCubeClause()).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+        checkSelectCubeClauseName(selectStatement.selectCubeClause(), "Adventure Works",
                 ObjectIdentifier.Quoting.QUOTED);
 
         assertThat(selectStatement.selectSlicerAxisClause()).isPresent();

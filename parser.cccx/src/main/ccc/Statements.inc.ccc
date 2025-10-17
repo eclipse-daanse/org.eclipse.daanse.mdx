@@ -15,6 +15,7 @@
 // Breaking the statement related logic out
 // into an INCLUDE
 
+
 // ----------------------------------------------------------------------------
 // MDX Statement
 //
@@ -425,17 +426,17 @@ SelectQueryAxesClause :
 ;
 
 
-INJECT SelectSubcubeClauseStatement :
+INJECT SelectCubeClauseSubStatement :
   import java.util.Optional;
   import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-  implements SelectSubcubeClause, org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement
+  implements SelectCubeClause, org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement
 {
     public org.eclipse.daanse.mdx.model.api.select.SelectQueryClause selectQueryClause() {
         return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectQueryClause.class);
     }
 
-    public org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause selectSubcubeClause() {
-        return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause.class);
+    public org.eclipse.daanse.mdx.model.api.select.SelectCubeClause selectCubeClause() {
+        return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectCubeClause.class);
     }
 
     public Optional<SelectSlicerAxisClause> selectSlicerAxisClause() {
@@ -443,14 +444,14 @@ INJECT SelectSubcubeClauseStatement :
     }
 }
 
-SelectSubcubeClauseStatement :
+SelectCubeClauseSubStatement :
   < LPAREN >
   < SELECT >
   (
     SelectQueryClause
   )?
   < FROM >
-  SelectSubcubeClause
+  SelectCubeClause
   (
     SelectSlicerAxisClause
   )?
@@ -493,8 +494,8 @@ INJECT SelectStatement :
         return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectQueryClause.class);
     }
 
-    public org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause selectSubcubeClause() {
-        return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause.class);
+    public org.eclipse.daanse.mdx.model.api.select.SelectCubeClause selectCubeClause() {
+        return firstChildOfType(org.eclipse.daanse.mdx.model.api.select.SelectCubeClause.class);
     }
 
     public Optional<SelectSlicerAxisClause> selectSlicerAxisClause() {
@@ -520,7 +521,7 @@ SelectStatement :
     SelectQueryEmptyClause
   )?
   < FROM >
-  SelectSubcubeClause
+  SelectCubeClause
   (
     SelectSlicerAxisClause
   )?
@@ -530,21 +531,21 @@ SelectStatement :
 ;
 
 
-SelectSubcubeClause#interface :
-  SelectSubcubeClauseName
+SelectCubeClause#interface :
+  SelectCubeClauseName
   |
-  SelectSubcubeClauseStatement
+  SelectCubeClauseSubStatement
 ;
 
-INJECT SelectSubcubeClauseName :
-   implements SelectSubcubeClause, org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName
+INJECT SelectCubeClauseName :
+   implements SelectCubeClause, org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName
 {
    public NameObjectIdentifier cubeName() {
       return (NameObjectIdentifier) getFirstChild();
    }
 }
 
-SelectSubcubeClauseName SelectSubcubeClauseName :
+SelectCubeClauseName SelectCubeClauseName :
   NameObjectIdentifier
   {
     return CURRENT_NODE;

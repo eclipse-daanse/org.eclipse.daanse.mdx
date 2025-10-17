@@ -20,11 +20,11 @@ import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectCellPropertyListClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 
 public record SelectStatementR(List<SelectWithClause> selectWithClauses, SelectQueryClause selectQueryClause,
-        SelectSubcubeClause selectSubcubeClause, Optional<SelectSlicerAxisClause> selectSlicerAxisClause,
+        SelectCubeClause selectCubeClause, Optional<SelectSlicerAxisClause> selectSlicerAxisClause,
         Optional<SelectCellPropertyListClause> selectCellPropertyListClause) implements SelectStatement {
 
 }

@@ -20,7 +20,7 @@ import java.util.Set;
 
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier.Quoting;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Disabled;
@@ -39,7 +39,7 @@ class CubeTest {
             "CURRENT", "NAME", "CHILDREN", "PREVMEMBER", "LEVEL_NUMBER", "ALLMEMBERS", "COUNT", "CAPTION", "HIERARCHY");
 
     @Nested
-    class SelectSubcubeClauseNameTest {
+    class SelectCubeClauseNameTest {
         @ParameterizedTest
         @ValueSource(strings = { "c", //
                 "cube", // Reserved Word but quoted
@@ -49,8 +49,8 @@ class CubeTest {
 
             SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
             assertThat(selectStatement).isNotNull();
-            assertThat(selectStatement.selectSubcubeClause()).isNotNull()
-                    .isInstanceOfSatisfying(SelectSubcubeClauseName.class, s -> {
+            assertThat(selectStatement.selectCubeClause()).isNotNull()
+                    .isInstanceOfSatisfying(SelectCubeClauseName.class, s -> {
                         assertThat(s.cubeName()).isNotNull().satisfies(n -> {
                             assertThat(n.name()).isEqualTo(cubeName);
                             assertThat(n.quoting()).isEqualByComparingTo(Quoting.QUOTED);
@@ -79,8 +79,8 @@ class CubeTest {
 
             SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
             assertThat(selectStatement).isNotNull();
-            assertThat(selectStatement.selectSubcubeClause()).isNotNull()
-                    .isInstanceOfSatisfying(SelectSubcubeClauseName.class, s -> {
+            assertThat(selectStatement.selectCubeClause()).isNotNull()
+                    .isInstanceOfSatisfying(SelectCubeClauseName.class, s -> {
                         assertThat(s.cubeName()).isNotNull().satisfies(n -> {
                             assertThat(n.name()).isEqualTo(cubeName);
                             assertThat(n.quoting()).isEqualByComparingTo(Quoting.UNQUOTED);

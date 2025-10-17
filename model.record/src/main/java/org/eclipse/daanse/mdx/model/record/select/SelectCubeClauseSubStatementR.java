@@ -17,12 +17,12 @@ import java.util.Optional;
 
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 
-public record SelectSubcubeClauseStatementR(SelectQueryClause selectQueryClause,
-                                            SelectSubcubeClause selectSubcubeClause,
+public record SelectCubeClauseSubStatementR(SelectQueryClause selectQueryClause,
+                                            SelectCubeClause selectCubeClause,
                                             Optional<SelectSlicerAxisClause> selectSlicerAxisClause)
-        implements SelectSubcubeClauseStatement {
+        implements SelectCubeClauseSubStatement {
 
 }

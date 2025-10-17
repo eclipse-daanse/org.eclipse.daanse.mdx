@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkAxis;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkNameObjectIdentifiers;
-import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectSubcubeClauseName;
+import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkSelectCubeClauseName;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -32,13 +32,13 @@ import org.eclipse.daanse.mdx.model.api.expression.operation.BracesOperationAtom
 import org.eclipse.daanse.mdx.model.api.expression.operation.FunctionOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.ParenthesesOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryEmptyClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseStatement;
 import org.eclipse.daanse.mdx.parser.api.MdxParser;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
@@ -69,7 +69,7 @@ class SelectStatementTest {
         SelectQueryAxisClause selectQueryAxisClause2 = selectQueryAxesClause.selectQueryAxisClauses().get(1);
         checkSelectQueryAxisClause1(selectQueryAxisClause1);
         checkSelectQueryAxisClause2(selectQueryAxisClause2);
-        checkSelectSubcubeClauseName(selectStatement.selectSubcubeClause(), "Adventure Works",
+        checkSelectCubeClauseName(selectStatement.selectCubeClause(), "Adventure Works",
                 ObjectIdentifier.Quoting.QUOTED);
         assertThat(selectStatement.selectSlicerAxisClause()).isPresent();
         assertThat(selectStatement.selectSlicerAxisClause().get().expression()).isNotNull()
@@ -160,7 +160,7 @@ class SelectStatementTest {
         checkNameObjectIdentifiers(compoundId.objectIdentifiers(), 0, "Store", ObjectIdentifier.Quoting.QUOTED);
         checkNameObjectIdentifiers(compoundId.objectIdentifiers(), 0, "Store", ObjectIdentifier.Quoting.QUOTED);
 
-        checkSelectSubcubeClauseName(selectStatement.selectSubcubeClause(), "Sales", ObjectIdentifier.Quoting.QUOTED);
+        checkSelectCubeClauseName(selectStatement.selectCubeClause(), "Sales", ObjectIdentifier.Quoting.QUOTED);
         assertThat(selectStatement.selectSlicerAxisClause()).isNotPresent();
         assertThat(selectStatement.selectCellPropertyListClause()).isNotPresent();
     }
@@ -182,19 +182,19 @@ class SelectStatementTest {
         SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
         assertThat(selectStatement).isNotNull();
         // test sub cubes
-        assertThat(selectStatement.selectSubcubeClause()).isNotNull().isInstanceOf(SelectSubcubeClauseStatement.class);
-        SelectSubcubeClauseStatement selectSubcubeClauseStatement1 = (SelectSubcubeClauseStatement) selectStatement
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseStatement1.selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseStatement.class);
-        SelectSubcubeClauseStatement selectSubcubeClauseStatement2 = (SelectSubcubeClauseStatement) selectSubcubeClauseStatement1
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseStatement2.selectSubcubeClause()).isNotNull()
-                .isInstanceOf(SelectSubcubeClauseName.class);
-        SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) selectSubcubeClauseStatement2
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
-        assertThat(selectSubcubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
+        assertThat(selectStatement.selectCubeClause()).isNotNull().isInstanceOf(SelectCubeClauseSubStatement.class);
+        SelectCubeClauseSubStatement selectCubeClauseSubStatement1 = (SelectCubeClauseSubStatement) selectStatement
+                .selectCubeClause();
+        assertThat(selectCubeClauseSubStatement1.selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseSubStatement.class);
+        SelectCubeClauseSubStatement selectCubeClauseSubStatement2 = (SelectCubeClauseSubStatement) selectCubeClauseSubStatement1
+                .selectCubeClause();
+        assertThat(selectCubeClauseSubStatement2.selectCubeClause()).isNotNull()
+                .isInstanceOf(SelectCubeClauseName.class);
+        SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) selectCubeClauseSubStatement2
+                .selectCubeClause();
+        assertThat(selectCubeClauseName.cubeName().name()).isEqualTo("Adventure Works");
+        assertThat(selectCubeClauseName.cubeName().quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
     }
 
     @Test
@@ -439,12 +439,12 @@ class SelectStatementTest {
         assertThat(selectQueryAxisClause.axis().named()).isTrue();
         assertThat(selectQueryAxisClause.axis().ordinal()).isEqualTo(0);
 
-        assertThat(selectStatement.selectSubcubeClause()).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-        SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) selectStatement
-                .selectSubcubeClause();
-        assertThat(selectSubcubeClauseName.cubeName()).isNotNull();
-        assertThat(selectSubcubeClauseName.cubeName().name()).isEqualTo("Cube1");
-        assertThat(selectSubcubeClauseName.cubeName().quoting()).isEqualTo(Quoting.QUOTED);
+        assertThat(selectStatement.selectCubeClause()).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+        SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) selectStatement
+                .selectCubeClause();
+        assertThat(selectCubeClauseName.cubeName()).isNotNull();
+        assertThat(selectCubeClauseName.cubeName().name()).isEqualTo("Cube1");
+        assertThat(selectCubeClauseName.cubeName().quoting()).isEqualTo(Quoting.QUOTED);
 
         assertThat(selectStatement.selectSlicerAxisClause()).isNotNull().isEmpty();
         assertThat(selectStatement.selectCellPropertyListClause()).isNotNull();
@@ -484,7 +484,7 @@ class SelectStatementTest {
         assertThat(nameObjectIdentifier2.quoting()).isEqualTo(Quoting.QUOTED);
         assertThat(callExpression.operationAtom()).isNotNull().isInstanceOf(ParenthesesOperationAtom.class);
 
-        assertThat(selectStatement.selectSubcubeClause()).isNotNull();
+        assertThat(selectStatement.selectCubeClause()).isNotNull();
         assertThat(selectStatement.selectWithClauses()).isNotNull();
     }
 

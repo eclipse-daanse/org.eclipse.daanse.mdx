@@ -20,8 +20,8 @@ import java.util.List;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.select.Axis;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectSubcubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
 import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 
 @RequireServiceComponentRuntime
@@ -35,12 +35,12 @@ public class MdxTestUtils {
         assertThat(noi1.name()).isEqualTo(name);
     }
 
-    public static void checkSelectSubcubeClauseName(SelectSubcubeClause selectSubcubeClause, String name,
+    public static void checkSelectCubeClauseName(SelectCubeClause selectCubeClause, String name,
             ObjectIdentifier.Quoting quoted) {
-        assertThat(selectSubcubeClause).isNotNull().isInstanceOf(SelectSubcubeClauseName.class);
-        SelectSubcubeClauseName selectSubcubeClauseName = (SelectSubcubeClauseName) selectSubcubeClause;
-        assertThat(selectSubcubeClauseName.cubeName()).isInstanceOf(NameObjectIdentifier.class);
-        NameObjectIdentifier nameObjectIdentifier = selectSubcubeClauseName.cubeName();
+        assertThat(selectCubeClause).isNotNull().isInstanceOf(SelectCubeClauseName.class);
+        SelectCubeClauseName selectCubeClauseName = (SelectCubeClauseName) selectCubeClause;
+        assertThat(selectCubeClauseName.cubeName()).isInstanceOf(NameObjectIdentifier.class);
+        NameObjectIdentifier nameObjectIdentifier = selectCubeClauseName.cubeName();
         assertThat(nameObjectIdentifier.name()).isEqualTo(name);
         assertThat(nameObjectIdentifier.quoting()).isEqualTo(quoted);
     }
