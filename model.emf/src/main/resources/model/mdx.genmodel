@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*********************************************************************
+* Copyright (c) 2025 Contributors to the Eclipse Foundation.
+*
+* This program and the accompanying materials are made
+* available under the terms of the Eclipse Public License 2.0
+* which is available at https://www.eclipse.org/legal/epl-2.0/
+*
+* SPDX-License-Identifier: EPL-2.0
+**********************************************************************/
+-->
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright (c) 2024 Contributors to the Eclipse Foundation.&#xA;&#xA;This program and the accompanying materials are made&#xA;available under the terms of the Eclipse Public License 2.0&#xA;which is available at https://www.eclipse.org/legal/epl-2.0/&#xA;&#xA;SPDX-License-Identifier: EPL-2.0&#xA;&#xA;Contributors:&#xA;"
+    modelDirectory="/org.eclipse.daanse.mdx.model.emf/src" modelPluginID="org.eclipse.daanse.mdx.model.emf"
+    modelName="Mdx" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="17.0" copyrightFields="false"
+    operationReflection="true" importOrganizing="true" oSGiCompatible="true">
+  <foreignModel>mdx.ecore</foreignModel>
+  <genPackages prefix="Mdx" basePackage="org.eclipse.daanse.mdx.model.emf" disposableProviderFactory="true"
+      ecorePackage="mdx.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="mdx.ecore#//QuotingEnum">
+      <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//QuotingEnum/UNQUOTED"/>
+      <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//QuotingEnum/QUOTED"/>
+      <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//QuotingEnum/KEY"/>
+    </genEnums>
+    <genClasses image="false" ecoreClass="mdx.ecore#//MdxStatement"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectWithClauses"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectQueryClause"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectCubeClause"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectSlicerAxisClause"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectCellPropertyListClause"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//DrillthroughStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//DrillthroughStatement/maxRows"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//DrillthroughStatement/firstRowSet"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DrillthroughStatement/selectStatement"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DrillthroughStatement/returnItems"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//ExplainStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//ExplainStatement/mdxStatement"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//DMVStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/columns"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/table"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/where"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//RefreshStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//RefreshStatement/cubeName"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//UpdateStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//UpdateStatement/cubeName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//UpdateStatement/updateClauses"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//ReturnItem">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//ReturnItem/compoundId"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//SelectWithClause"/>
+    <genClasses ecoreClass="mdx.ecore#//CreateMemberBodyClause">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateMemberBodyClause/compoundId"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateMemberBodyClause/expression"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateMemberBodyClause/memberPropertyDefinitions"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CreateSetBodyClause">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetBodyClause/compoundId"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetBodyClause/expression"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CreateCellCalculationBodyClause"/>
+    <genClasses ecoreClass="mdx.ecore#//MeasureBodyClause"/>
+    <genClasses ecoreClass="mdx.ecore#//MemberPropertyDefinition">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//MemberPropertyDefinition/expression"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//MemberPropertyDefinition/objectIdentifier"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//SelectQueryClause"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectQueryAsteriskClause"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectQueryAxesClause">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectQueryAxesClause/selectQueryAxisClauses"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//SelectQueryEmptyClause"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectQueryAxisClause">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//SelectQueryAxisClause/nonEmpty"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectQueryAxisClause/expression"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectQueryAxisClause/axis"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectQueryAxisClause/selectDimensionPropertyListClause"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//Axis">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//Axis/ordinal"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//Axis/named"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//Axis/name"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//SelectCubeClause"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectCubeClauseName">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectCubeClauseName/cubeName"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//SelectCubeClauseSubStatement"/>
+    <genClasses ecoreClass="mdx.ecore#//SelectSlicerAxisClause">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectSlicerAxisClause/expression"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//SelectCellPropertyListClause">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//SelectCellPropertyListClause/properties"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//SelectCellPropertyListClause/cell"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//SelectDimensionPropertyListClause"/>
+    <genClasses ecoreClass="mdx.ecore#//UpdateClause"/>
+    <genClasses ecoreClass="mdx.ecore#//Allocation"/>
+    <genClasses image="false" ecoreClass="mdx.ecore#//OperationAtom">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//OperationAtom/name"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//AmpersandQuotedPropertyOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//BracesOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//CaseOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//CastOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//EmptyOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//FunctionOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//InfixOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//InternalOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//MethodOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//ParenthesesOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//PlainPropertyOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//PostfixOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//PrefixOperationAtom"/>
+    <genClasses ecoreClass="mdx.ecore#//QuotedPropertyOperationAtom"/>
+    <genClasses image="false" ecoreClass="mdx.ecore#//MdxExpression"/>
+    <genClasses ecoreClass="mdx.ecore#//CallExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CallExpression/operationAtom"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CallExpression/expressions"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//Literal"/>
+    <genClasses ecoreClass="mdx.ecore#//NullLiteral"/>
+    <genClasses ecoreClass="mdx.ecore#//NumericLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//NumericLiteral/value"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//StringLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//StringLiteral/value"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//SymbolLiteral">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//SymbolLiteral/value"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CompoundId">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CompoundId/objectIdentifiers"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//ObjectIdentifier">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//ObjectIdentifier/quoting"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//NameObjectIdentifier">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//NameObjectIdentifier/name"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//KeyObjectIdentifier">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//KeyObjectIdentifier/nameObjectIdentifiers"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//FormulaExpression"/>
+  </genPackages>
+</genmodel:GenModel>
