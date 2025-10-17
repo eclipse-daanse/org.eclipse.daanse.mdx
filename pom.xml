@@ -41,7 +41,7 @@
   <modules>
     <module>model.api</module>
     <module>model.record</module>
-<!--    <module>model.emf</module>-->
+    <module>model.emf</module>
     <module>parser.api</module>
     <module>parser.ccc</module>
     <module>parser.cccx</module>
