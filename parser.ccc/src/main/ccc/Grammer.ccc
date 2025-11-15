@@ -434,8 +434,20 @@ TOKEN :
 MdxStatement parseMdxStatement :
 {
   MdxStatement mdxStatement = null;
+  boolean isDMV = false;
+  // Check if this is a DMV statement by scanning for $SYSTEM token
+  for (int i = 1; i < 50; i++) {
+    Token t = getToken(i);
+    if (t.getType() == SYSTEM_CUBE) {
+      isDMV = true;
+      break;
+    }
+    if (t.getType() == EOF) break;
+  }
 }
 (
+    SCAN {isDMV} => mdxStatement = parseDMVStatement
+  	|
     mdxStatement = parseSelectStatement
   	|
   	mdxStatement = parseDrillthroughStatement

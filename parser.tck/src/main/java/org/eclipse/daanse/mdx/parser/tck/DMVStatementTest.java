@@ -18,9 +18,11 @@ import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkNameObjectIdentifiers;
 
 import org.eclipse.daanse.mdx.model.api.DMVStatement;
+import org.eclipse.daanse.mdx.model.api.MdxStatement;
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
+import org.eclipse.daanse.mdx.model.api.expression.NumericLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.operation.InfixOperationAtom;
@@ -76,4 +78,36 @@ class DMVStatementTest {
         assertThat(stringLiteral.value()).isEqualTo("name");
     }
 
+    @Test
+    void test3(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [CUBE_NAME] from $system.MDSCHEMA_CUBES where [CUBE_SOURCE] = 1", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(1);
+        assertThat(clause.columns().get(0).objectIdentifiers()).hasSize(1);
+        assertThat(clause.columns().get(0).objectIdentifiers().get(0)).isInstanceOf(NameObjectIdentifier.class);
+        checkNameObjectIdentifiers(clause.columns().get(0).objectIdentifiers(), 0, "CUBE_NAME",
+                ObjectIdentifier.Quoting.QUOTED);
+        assertThat(clause.table()).isNotNull();
+        assertThat(clause.table().name()).isEqualTo("MDSCHEMA_CUBES");
+        assertThat(clause.table().quoting()).isEqualTo(ObjectIdentifier.Quoting.UNQUOTED);
+        assertThat(clause.where()).isNotNull().isInstanceOf(CallExpression.class);
+        CallExpression callExpression = (CallExpression) clause.where();
+        assertThat(callExpression.operationAtom()).isEqualTo(new InfixOperationAtom("="));
+        assertThat(callExpression.expressions()).isNotNull().hasSize(2);
+        assertThat(callExpression.expressions().get(0)).isNotNull().isInstanceOf(CompoundId.class);
+        assertThat(callExpression.expressions().get(1)).isNotNull().isInstanceOf(NumericLiteral.class);
+        CompoundId compoundId = (CompoundId) callExpression.expressions().get(0);
+        NumericLiteral numericLiteral = (NumericLiteral) callExpression.expressions().get(1);
+        assertThat(compoundId.objectIdentifiers()).hasSize(1);
+        checkNameObjectIdentifiers(compoundId.objectIdentifiers(), 0, "CUBE_SOURCE", ObjectIdentifier.Quoting.QUOTED);
+        assertThat(numericLiteral.value().intValue()).isEqualTo(1);
+    }
 }
