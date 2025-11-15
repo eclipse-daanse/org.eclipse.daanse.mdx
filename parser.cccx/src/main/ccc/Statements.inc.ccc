@@ -41,7 +41,21 @@
 //     EXPLAIN PLAN FOR ( <selectStatement> | <drillthroughStatement> )
 //
 MdxStatement MdxStatement#interface :
+{
+  boolean isDMV = false;
+  // Check if this is a DMV statement by scanning for $SYSTEM token
+  for (int i = 1; i < 50; i++) {
+    Token t = getToken(i);
+    if (t.getType() == SYSTEM_CUBE) {
+      isDMV = true;
+      break;
+    }
+    if (t.getType() == EOF) break;
+  }
+}
   (
+    SCAN {isDMV} => DMVStatement
+  	|
     SelectStatement
   	|
   	DrillthroughStatement
@@ -224,7 +238,7 @@ UpdateClause :
 ;
 
 INJECT DMVStatement :
-   implements org.eclipse.daanse.mdx.model.api.DMVStatement;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.DMVStatement;
 {
     public java.util.List<CompoundId> columns() {
         return childrenOfType(CompoundId.class);
