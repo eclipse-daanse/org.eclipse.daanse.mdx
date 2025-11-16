@@ -110,4 +110,19 @@ class DMVStatementTest {
         checkNameObjectIdentifiers(compoundId.objectIdentifiers(), 0, "CUBE_SOURCE", ObjectIdentifier.Quoting.QUOTED);
         assertThat(numericLiteral.value().intValue()).isEqualTo(1);
     }
+
+    @Test
+    void test4(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [CUBE_NAME], [BASE_CUBE_NAME], [CUBE_CAPTION] from $system.mdschema_cubes where [CUBE_SOURCE] = 1", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(3);
+    }
 }

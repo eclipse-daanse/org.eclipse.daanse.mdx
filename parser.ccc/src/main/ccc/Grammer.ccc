@@ -1584,12 +1584,13 @@ DMVStatement parseDMVStatement :
     c = parseCompoundId()
     { columns.add(c); }
     (
-        < COMMA >
-    { columns.add(parseCompoundId()); }
+        < COMMA > c = parseCompoundId()
+        { columns.add(c); }
     )*
 
 )?
-< FROM > < SYSTEM_CUBE > =>|| < DOT > tableId = parseNameObjectIdentifier()
+< FROM > < SYSTEM_CUBE > =>||
+< DOT > tableId = parseNameObjectIdentifier()
 (
           < WHERE > expression = parseExpression()
 )?
