@@ -125,4 +125,96 @@ class DMVStatementTest {
         assertThat(clause).isNotNull();
         assertThat(clause.columns()).hasSize(3);
     }
+
+    @Test
+    void testmdschema_mdschema_measures(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [MEASURE_UNIQUE_NAME], [MEASURE_CAPTION], [DATA_TYPE], [MEASUREGROUP_NAME], [MEASURE_DISPLAY_FOLDER] from $system.mdschema_measures where [CUBE_NAME] = @CubeName and [MEASURE_IS_VISIBLE]", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(5);
+    }
+
+    @Test
+    void testmdschema_mdschema_kpis(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [KPI_NAME], [KPI_CAPTION], [MEASUREGROUP_NAME], [KPI_DISPLAY_FOLDER], [KPI_GOAL], [KPI_STATUS], [KPI_TREND], [KPI_VALUE] from $system.mdschema_kpis where [CUBE_NAME] = @CubeName", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(8);
+    }
+
+
+    @Test
+    void testmdschema_mdschema_dimensions(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [DIMENSION_UNIQUE_NAME], [DIMENSION_CAPTION] from $system.mdschema_dimensions where [CUBE_NAME] = @CubeName and [DIMENSION_UNIQUE_NAME] <> '[Measures]'", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(2);
+    }
+
+    @Test
+    void testmdschema_mdschema_hierarchies(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [DIMENSION_UNIQUE_NAME], [HIERARCHY_UNIQUE_NAME], [HIERARCHY_CAPTION], [HIERARCHY_DISPLAY_FOLDER], [HIERARCHY_ORIGIN], [HIERARCHY_IS_VISIBLE] from $system.mdschema_hierarchies where [CUBE_NAME] = @CubeName and [DIMENSION_UNIQUE_NAME] <> '[Measures]'", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(6);
+    }
+
+    @Test
+    void testmdschema_mdschema_levels(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [DIMENSION_UNIQUE_NAME], [HIERARCHY_UNIQUE_NAME], [LEVEL_UNIQUE_NAME], [LEVEL_NUMBER], [LEVEL_CAPTION] from $system.mdschema_levels where [CUBE_NAME] = @CubeName and [LEVEL_NAME] <> '(All)' and [DIMENSION_UNIQUE_NAME] <> '[Measures]'", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(5);
+    }
+
+    @Test
+    void testmdschema_mdschema_measuregroups(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+        MdxStatement mdx = mdxParserProvider
+                .newParser("select [MEASUREGROUP_NAME], [MEASUREGROUP_CAPTION] from $system.mdschema_measuregroups where [CUBE_NAME] = @CubeName", propertyWords)
+                .parseMdxStatement();
+
+        if(!(mdx instanceof DMVStatement)) {
+            throw new AssertionError("Expected DMVStatement but got " + mdx.getClass().getSimpleName());
+        }
+        DMVStatement clause= (DMVStatement) mdx;
+
+        assertThat(clause).isNotNull();
+        assertThat(clause.columns()).hasSize(2);
+    }
+
 }
