@@ -11,11 +11,12 @@
  *   SmartCity Jena - initial
  *   Stefan Bischof (bipolis.org) - initial
  */
-package org.eclipse.daanse.mdx.unparser.simple;
+package org.eclipse.daanse.mdx.unparser.simple.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.eclipse.daanse.mdx.unparser.api.UnParser;
+import org.eclipse.daanse.mdx.unparser.simple.SimpleUnparser;
 import org.junit.jupiter.api.Test;
 import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.osgi.test.common.annotation.InjectService;
