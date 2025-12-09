@@ -22,7 +22,7 @@
 
 -resolve.effective: active
 
--runee: JavaSE-21
+-runee: JavaSE-25
 -runfw: org.eclipse.osgi
 # This will help us keep -runbundles sorted
 -runstartlevel: \
