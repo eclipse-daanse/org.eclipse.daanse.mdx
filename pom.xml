@@ -67,7 +67,6 @@
   </modules>
 
   <dependencies>
-
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.annotation.bundle</artifactId>
