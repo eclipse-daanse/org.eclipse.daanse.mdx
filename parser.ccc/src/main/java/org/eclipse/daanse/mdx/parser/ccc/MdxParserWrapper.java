@@ -84,6 +84,12 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     }
 
     private void dump() {
+        // Node.dump() writes the whole tree to System.out, so it has to be gated on the
+        // level like the message above it. Ungated, every parse printed its AST: ~177k
+        // lines per TCK test group, unreachable by any logging configuration.
+        if (!logger.isTraceEnabled()) {
+            return;
+        }
         Node root = delegate.rootNode();
         if (root != null) {
             logger.trace("Dumping parser AST");
