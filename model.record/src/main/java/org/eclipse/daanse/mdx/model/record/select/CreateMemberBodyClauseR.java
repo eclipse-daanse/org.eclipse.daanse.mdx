@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.record.select;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
@@ -22,5 +23,10 @@ import org.eclipse.daanse.mdx.model.api.select.MemberPropertyDefinition;
 
 public record CreateMemberBodyClauseR(CompoundId compoundId, MdxExpression expression,
         List<MemberPropertyDefinition> memberPropertyDefinitions) implements CreateMemberBodyClause {
+
+    public CreateMemberBodyClauseR{
+        Objects.requireNonNull(memberPropertyDefinitions, "memberPropertyDefinitions must not be null");
+        memberPropertyDefinitions = List.copyOf(memberPropertyDefinitions);
+    }
 
 }

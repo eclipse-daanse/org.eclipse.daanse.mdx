@@ -19,6 +19,13 @@ import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 
+/**
+ * DMVStatement Statement
+ * Syntax SELECT [DISTINCT] [TOP n] select_list
+ * FROM $System.schemaRowset
+ * [WHERE condition_expression]
+ * [ORDER BY expression [DESC | ASC]
+ */
 public non-sealed interface DMVStatement extends MdxStatement {
 
     List<? extends CompoundId> columns();

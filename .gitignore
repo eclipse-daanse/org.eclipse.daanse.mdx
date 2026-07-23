@@ -24,9 +24,6 @@ generated
 .env.*.local
 
 # Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 
 # Editor directories and files
@@ -34,7 +31,5 @@ pnpm-debug.log*
 .vscode
 *.suo
 *.ntvs*
-*.njsproj
-*.sln
 *.sw?
 .flattened-pom.xml

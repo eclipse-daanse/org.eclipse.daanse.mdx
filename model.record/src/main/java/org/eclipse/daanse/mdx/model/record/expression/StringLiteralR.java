@@ -17,6 +17,6 @@ import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
 
 public record StringLiteralR(String value) implements StringLiteral {
 
-    static final StringLiteralR EMPTY = new StringLiteralR("");
+    public static final StringLiteralR EMPTY = new StringLiteralR("");
 
 }

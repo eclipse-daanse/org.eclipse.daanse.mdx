@@ -27,8 +27,6 @@ import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.NullLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.NumericLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier.Quoting;
-import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
-import org.eclipse.daanse.mdx.model.api.expression.SymbolLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.operation.AmpersandQuotedPropertyOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.CaseOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.CastOperationAtom;
@@ -41,6 +39,8 @@ import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperat
 import org.eclipse.daanse.mdx.model.api.expression.operation.PostfixOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.PrefixOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.QuotedPropertyOperationAtom;
+import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
+import org.eclipse.daanse.mdx.model.api.expression.SymbolLiteral;
 import org.eclipse.daanse.mdx.parser.api.MdxParser;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;

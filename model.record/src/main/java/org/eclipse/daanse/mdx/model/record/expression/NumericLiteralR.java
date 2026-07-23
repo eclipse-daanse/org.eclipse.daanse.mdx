@@ -19,8 +19,8 @@ import org.eclipse.daanse.mdx.model.api.expression.NumericLiteral;
 
 public record NumericLiteralR(BigDecimal value) implements NumericLiteral {
 
-    static final NumericLiteralR ONE = new NumericLiteralR(BigDecimal.ONE);
-    static final NumericLiteralR ZERO = new NumericLiteralR(BigDecimal.ZERO);
-    static final NumericLiteralR NEGATIVE_ONE = new NumericLiteralR(BigDecimal.ONE.negate());
+    public static final NumericLiteralR ONE = new NumericLiteralR(BigDecimal.ONE);
+    public static final NumericLiteralR ZERO = new NumericLiteralR(BigDecimal.ZERO);
+    public static final NumericLiteralR NEGATIVE_ONE = new NumericLiteralR(BigDecimal.ONE.negate());
 
 }

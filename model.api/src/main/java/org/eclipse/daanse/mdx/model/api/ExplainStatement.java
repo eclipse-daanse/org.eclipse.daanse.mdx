@@ -13,6 +13,9 @@
  */
 package org.eclipse.daanse.mdx.model.api;
 
+/**
+ * Explain Statement
+ */
 public non-sealed interface ExplainStatement extends MdxStatement {
 
     MdxStatement mdxStatement();

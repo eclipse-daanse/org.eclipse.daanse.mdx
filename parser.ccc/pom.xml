@@ -41,7 +41,7 @@
         <configuration>
           <sourceDirectory>${project.basedir}/src/main/ccc</sourceDirectory>
           <lang>java</lang>
-          <jdk>17</jdk>
+          <jdk>25</jdk>
           <quiet>false</quiet>
           <outputDirectory>${project.basedir}/src/gen/java</outputDirectory>
         </configuration>
@@ -49,7 +49,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>add-source</id>

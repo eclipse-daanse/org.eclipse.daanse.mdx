@@ -22,9 +22,10 @@ import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 public record KeyObjectIdentifierR(List<NameObjectIdentifier> nameObjectIdentifiers) implements KeyObjectIdentifier {
 
     public KeyObjectIdentifierR {
-        if (nameObjectIdentifiers.isEmpty()) {
-            throw new IllegalArgumentException();
+        if (nameObjectIdentifiers == null || nameObjectIdentifiers.isEmpty()) {
+            throw new IllegalArgumentException("KeyObjectIdentifier nameObjectIdentifiers should not be empty");
         }
+        nameObjectIdentifiers = List.copyOf(nameObjectIdentifiers);
     }
 
     @Override

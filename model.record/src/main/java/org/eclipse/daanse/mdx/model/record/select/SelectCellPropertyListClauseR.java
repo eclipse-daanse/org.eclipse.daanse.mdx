@@ -14,11 +14,17 @@
 package org.eclipse.daanse.mdx.model.record.select;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.select.SelectCellPropertyListClause;
 
 public record SelectCellPropertyListClauseR(List<String> properties,
                                             boolean cell)
         implements SelectCellPropertyListClause {
+
+    public SelectCellPropertyListClauseR{
+        Objects.requireNonNull(properties, "properties must not be null");
+        properties = List.copyOf(properties);
+    }
 
 }

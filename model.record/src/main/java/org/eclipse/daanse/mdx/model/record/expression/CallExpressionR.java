@@ -14,11 +14,17 @@
 package org.eclipse.daanse.mdx.model.record.expression;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.operation.OperationAtom;
 
 public record CallExpressionR(OperationAtom operationAtom, List<MdxExpression> expressions) implements CallExpression {
+
+    public CallExpressionR {
+        Objects.requireNonNull(expressions, "expressions must not be null");
+        expressions = List.copyOf(expressions);
+    }
 
 }

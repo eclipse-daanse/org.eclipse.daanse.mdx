@@ -88,20 +88,31 @@ class UnparseParsedTest {
                         """;
 
     @org.junit.jupiter.api.Test
-    void testFullStatement(
+    void testFullStatemenCccx(
             @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider)") MdxParserProvider mdxParserProvider,
             @InjectService UnParser unParser) throws MdxParserException {
 
         MdxStatement mdxStatement = mdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();
-        StringBuilder resultmdx = unParser.unparseMdxStatement(mdxStatement);
+        CharSequence resultmdx = unParser.unparseMdxStatement(mdxStatement);
+        assertThat(resultmdx).isNotNull().isNotBlank();
+
+    }
+
+    @org.junit.jupiter.api.Test
+    void testFullStatemenCcc(
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.ccc.CCCMdxParserProvider)") MdxParserProvider mdxParserProvider,
+            @InjectService UnParser unParser) throws MdxParserException {
+
+        MdxStatement mdxStatement = mdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();
+        CharSequence resultmdx = unParser.unparseMdxStatement(mdxStatement);
         assertThat(resultmdx).isNotNull().isNotBlank();
 
     }
 
     @org.junit.jupiter.api.Test
     void test(
-            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider)") MdxParserProvider cccMdxParserProvider,
-            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.ccc.CCCMdxParserProvider)") MdxParserProvider cccxMdxParserProvider)
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.cccx.CCCXMdxParserProvider)") MdxParserProvider cccxMdxParserProvider,
+            @InjectService(filter = "(component.name=org.eclipse.daanse.mdx.parser.ccc.CCCMdxParserProvider)") MdxParserProvider cccMdxParserProvider)
             throws MdxParserException {
 
         MdxStatement mdxStatement = cccMdxParserProvider.newParser(MDX, reservedWords).parseMdxStatement();

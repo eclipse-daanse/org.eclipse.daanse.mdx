@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.record;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.UpdateStatement;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
@@ -21,4 +22,8 @@ import org.eclipse.daanse.mdx.model.api.select.UpdateClause;
 
 public record UpdateStatementR(NameObjectIdentifier cubeName, List<UpdateClause> updateClauses) implements UpdateStatement {
 
+    public UpdateStatementR{
+        Objects.requireNonNull(updateClauses, "updateClauses must not be null");
+        updateClauses = List.copyOf(updateClauses);
+    }
 }

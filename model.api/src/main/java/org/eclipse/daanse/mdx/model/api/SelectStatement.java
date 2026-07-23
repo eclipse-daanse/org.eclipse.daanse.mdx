@@ -22,6 +22,14 @@ import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 
+/**
+ * SelectStatement Statement
+ * Syntax [ WITH SELECT WITH clause [ , SELECT WITH clause...n ] ]
+ * SELECT [ * | ( SELECT query axis clause [ , SELECT query axis clause>,...n ] ) ]
+ * FROM SELECT subcube clause
+ * [ SELECT slicer axis clause ]
+ * [ SELECT cell property list clause ]
+ */
 public non-sealed interface SelectStatement extends MdxStatement {
 
     List<? extends SelectWithClause> selectWithClauses();

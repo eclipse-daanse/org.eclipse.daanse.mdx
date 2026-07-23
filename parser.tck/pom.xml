@@ -27,6 +27,7 @@
     conformance.</description>
   <properties>
     <sonar.exclusions>src/**/tck/**/*</sonar.exclusions>
+    <xmlunit-assertj3.version>2.9.0</xmlunit-assertj3.version>
   </properties>
   <dependencies>
     <dependency>
@@ -65,7 +66,7 @@
     <dependency>
       <groupId>org.xmlunit</groupId>
       <artifactId>xmlunit-assertj3</artifactId>
-      <version>2.9.0</version>
+      <version>${xmlunit-assertj3.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

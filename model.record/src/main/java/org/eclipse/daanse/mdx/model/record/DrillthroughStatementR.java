@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.record;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
@@ -25,5 +26,11 @@ public record DrillthroughStatementR(
     Optional<Integer> firstRowSet,
     SelectStatement selectStatement,
     List<ReturnItem> returnItems) implements DrillthroughStatement {
+
+    public DrillthroughStatementR{
+        if (returnItems != null) {
+            returnItems = List.copyOf(returnItems);
+        }
+    }
 
 }

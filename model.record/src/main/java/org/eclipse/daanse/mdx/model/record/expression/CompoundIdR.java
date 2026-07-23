@@ -14,10 +14,14 @@
 package org.eclipse.daanse.mdx.model.record.expression;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 
 public record CompoundIdR(List<ObjectIdentifier> objectIdentifiers) implements CompoundId {
-
+    public CompoundIdR {
+        Objects.requireNonNull(objectIdentifiers, "objectIdentifiers must not be null");
+        objectIdentifiers = List.copyOf(objectIdentifiers);
+    }
 }

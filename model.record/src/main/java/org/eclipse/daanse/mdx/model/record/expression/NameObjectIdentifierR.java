@@ -21,10 +21,10 @@ public record NameObjectIdentifierR(String name,
 
     public NameObjectIdentifierR {
         if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("NameObjectIdentifier name should be not empty");
         }
         if (!(quoting == Quoting.QUOTED || quoting == Quoting.UNQUOTED)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("NameObjectIdentifier has wrong quoting. quoting should be QUOTED or UNQUOTED");
         }
     }
 }

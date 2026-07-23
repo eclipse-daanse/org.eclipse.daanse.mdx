@@ -24,6 +24,10 @@
   <description>Performance testing framework for MDX parsing and processing.
     Uses JMH (Java Microbenchmark Harness) to measure and compare performance of
     different MDX parser implementations and processing strategies.</description>
+  <properties>
+    <jmh-core.version>1.37</jmh-core.version>
+    <jmh-generator-annprocess.version>1.37</jmh-generator-annprocess.version>
+  </properties>
   <dependencies>
 
     <!--
@@ -48,13 +52,13 @@
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-core</artifactId>
-      <version>1.37</version>
+      <version>${jmh-core.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-generator-annprocess</artifactId>
-      <version>1.37</version>
+      <version>${jmh-generator-annprocess.version}</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>

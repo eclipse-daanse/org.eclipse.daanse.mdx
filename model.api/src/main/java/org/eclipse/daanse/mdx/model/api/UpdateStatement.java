@@ -18,9 +18,15 @@ import java.util.List;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.select.UpdateClause;
 
+/**
+ * UpdateStatement Statement
+ * Syntax UPDATE MEMBER Cube_Name.Member_Name
+ * AS MDX_Expression
+ * [, Property_Name = Property_Value, ...n]
+ */
 public non-sealed interface UpdateStatement extends MdxStatement {
 
     NameObjectIdentifier cubeName();
 
-    List<UpdateClause> updateClauses();
+    List<? extends UpdateClause> updateClauses();
 }

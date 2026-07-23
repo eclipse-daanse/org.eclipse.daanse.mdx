@@ -15,6 +15,10 @@ package org.eclipse.daanse.mdx.model.api;
 
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 
+/**
+ * RefreshStatement Statement
+ * Syntax REFRESH CUBE Cube_Name
+ */
 public non-sealed interface RefreshStatement extends MdxStatement {
 
     NameObjectIdentifier cubeName();
