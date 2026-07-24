@@ -17,6 +17,6 @@ import org.eclipse.daanse.mdx.model.api.expression.SymbolLiteral;
 
 public record SymbolLiteralR(String value) implements SymbolLiteral {
 
-    static final SymbolLiteralR ASC = new SymbolLiteralR("ASC");
+    public static final SymbolLiteralR ASC = new SymbolLiteralR("ASC");
 
 }

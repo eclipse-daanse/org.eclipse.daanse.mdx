@@ -21,7 +21,7 @@ public record InternalOperationAtom(String name) implements OperationAtom {
 
     public InternalOperationAtom(String name) {
         if (!name.startsWith("$")) {
-            throw new IllegalArgumentException("Internal Names muist start with an '$'. Was: " + name);
+            throw new IllegalArgumentException("Internal Names must start with an '$'. Was: " + name);
         }
         this.name = name;
     }

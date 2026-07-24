@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.record;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
@@ -27,4 +28,8 @@ public record SelectStatementR(List<SelectWithClause> selectWithClauses, SelectQ
         SelectCubeClause selectCubeClause, Optional<SelectSlicerAxisClause> selectSlicerAxisClause,
         Optional<SelectCellPropertyListClause> selectCellPropertyListClause) implements SelectStatement {
 
+    public SelectStatementR {
+        Objects.requireNonNull(selectWithClauses, "selectWithClauses must not be null");
+        selectWithClauses = List.copyOf(selectWithClauses);
+    }
 }

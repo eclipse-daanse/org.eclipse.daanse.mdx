@@ -57,5 +57,10 @@
       <artifactId>org.osgi.util.converter</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.test.common</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

@@ -113,6 +113,7 @@ public class MdxParserUtil {
             } catch (Exception e) {
                 logger.error("Failed to parse string literal expression: '{}'", stringLiteral.value(), e);
                 e.printStackTrace();
+                //throw new ParseException("Failed to parse string literal expression: '" + stringLiteral.value() + "'");
             }
         }
         return expression;

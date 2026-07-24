@@ -35,14 +35,13 @@ class SelectQueryClauseTest {
         @Test
         void testInStatement(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
             String mdx = """
-                    SELECT [Customer].[Gender].[Gender].Membmers ON COLUMNS,
+                    SELECT [Customer].[Gender].[Gender].Members ON COLUMNS,
                             {[Customer].[Customer].[Aaron A. Allen],
                             [Customer].[Customer].[Abigail Clark]} ON ROWS
                     FROM [c]
                     """;
 
             SelectStatement selectStatement = mdxParserProvider.newParser(mdx, propertyWords).parseSelectStatement();
-            System.out.println(selectStatement);
             assertThat(selectStatement).isNotNull();
 
         }
@@ -50,7 +49,7 @@ class SelectQueryClauseTest {
         @Test
         void testInClauseMultiple(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
             String mdx = """
-                    [Customer].[Gender].[Gender].Membmers ON COLUMNS,
+                    [Customer].[Gender].[Gender].Members ON COLUMNS,
                             {[Customer].[Customer].[Aaron A. Allen],
                             [Customer].[Customer].[Abigail Clark]} ON ROWS
                     """;

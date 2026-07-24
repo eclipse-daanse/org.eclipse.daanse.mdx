@@ -14,7 +14,6 @@
 package org.eclipse.daanse.mdx.unparser.simple;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -58,6 +57,9 @@ import org.eclipse.daanse.mdx.model.api.select.CreateSetBodyClause;
 import org.eclipse.daanse.mdx.model.api.select.MeasureBodyClause;
 import org.eclipse.daanse.mdx.model.api.select.MemberPropertyDefinition;
 import org.eclipse.daanse.mdx.model.api.select.SelectCellPropertyListClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
+import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectDimensionPropertyListClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAsteriskClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
@@ -65,59 +67,17 @@ import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryEmptyClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectSlicerAxisClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
-import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
-import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
 import org.eclipse.daanse.mdx.unparser.api.UnParser;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.metatype.annotations.AttributeDefinition;
-import org.osgi.service.metatype.annotations.Designate;
-import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.osgi.util.converter.Converters;
 
 @Component
-@Designate(ocd = SimpleUnparser.Config.class)
 public class SimpleUnparser implements UnParser {
 
-    private static final String DELIMITER = "\r\n ";
+    private static final String DELIMITER = "\r\n";
 
-    @ObjectClassDefinition()
-    public interface Config {
 
-        @AttributeDefinition(defaultValue = "false")
-        default boolean commentUnusedElements() {
-            return true;
-        }
-    }
-
-    int indent = 0;
-
-    @SuppressWarnings("java:S1068")
-    private Config config = null;
-
-    @Activate
-    public void activate(Map<String, Object> configMap) {
-        modifies(configMap);
-
-    }
-
-    @Deactivate
-    public void deActivate(Map<String, Object> configMap) {
-        this.config = null;
-
-    }
-
-    @Modified
-    public void modifies(Map<String, Object> configMap) {
-        this.config = Converters.standardConverter().convert(configMap).to(Config.class);
-
-    }
-
-    public StringBuilder unparseSelectStatement(SelectStatement selectStatement) {
+    public CharSequence unparseSelectStatement(SelectStatement selectStatement) {
         StringBuilder sb = new StringBuilder();
         if (!selectStatement.selectWithClauses().isEmpty()) {
             sb = sb.append("WITH ");
@@ -146,7 +106,7 @@ public class SimpleUnparser implements UnParser {
 
     }
 
-    public StringBuilder unparseSelectCellPropertyListClause(SelectCellPropertyListClause clause) {
+    public CharSequence unparseSelectCellPropertyListClause(SelectCellPropertyListClause clause) {
         StringBuilder sb = new StringBuilder();
 
         if (clause.cell()) {
@@ -157,7 +117,7 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseProperties(List<String> propertyList) {
+    public CharSequence unparseProperties(List<String> propertyList) {
         StringBuilder sb = new StringBuilder();
         if (propertyList != null && !propertyList.isEmpty()) {
             sb.append("PROPERTIES ");
@@ -168,13 +128,13 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseSelectSlicerAxisClause(SelectSlicerAxisClause clause) {
+    public CharSequence unparseSelectSlicerAxisClause(SelectSlicerAxisClause clause) {
         StringBuilder sb = new StringBuilder("WHERE ");
 
         return sb.append(unparseExpression(clause.expression()));
     }
 
-    public StringBuilder unparseSelectCubeClause(SelectCubeClause clause) {
+    public CharSequence unparseSelectCubeClause(SelectCubeClause clause) {
 
         if (clause instanceof SelectCubeClauseName sscn) {
             return unparseSelectCubeClauseName(sscn);
@@ -183,31 +143,31 @@ public class SimpleUnparser implements UnParser {
             return unparseSelectCubeClauseSubStatement(sscs);
         }
 
-        return null;
+        return new StringBuilder();
     }
 
-    public StringBuilder unparseSelectCubeClauseSubStatement(SelectCubeClauseSubStatement clause) {
+    public CharSequence unparseSelectCubeClauseSubStatement(SelectCubeClauseSubStatement clause) {
         StringBuilder sb = new StringBuilder();
 
         Optional<SelectSlicerAxisClause> sOptional = clause.selectSlicerAxisClause();
 
-        sb.append(" ( \r\n");
-        sb.append("  SELECT \r\n");
+        sb.append(" ( ").append(DELIMITER);
+        sb.append("  SELECT ").append(DELIMITER);
         sb.append(unparseSelectQueryClause(clause.selectQueryClause()));
-        sb.append(" FROM \r\n");
+        sb.append(" FROM ").append(DELIMITER);
         sb.append(unparseSelectCubeClause(clause.selectCubeClause()));
 
         if (sOptional.isPresent()) {
 
             sb.append(unparseSelectSlicerAxisClause(sOptional.get()));
         }
-        sb.append("\r\n");
-        sb.append(" ) \r\n");
+        sb.append(DELIMITER);
+        sb.append(" ) ").append(DELIMITER);
 
         return sb;
     }
 
-    public StringBuilder unparseSelectCubeClauseName(SelectCubeClauseName clause) {
+    public CharSequence unparseSelectCubeClauseName(SelectCubeClauseName clause) {
 
         return unparseNameObjectIdentifier(clause.cubeName());
     }
@@ -227,7 +187,7 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseSelectQueryClause(SelectQueryClause clause) {
+    public CharSequence unparseSelectQueryClause(SelectQueryClause clause) {
 
         if (clause instanceof SelectQueryAsteriskClause) {
             return unparseSelectQueryAsteriskClause();
@@ -241,21 +201,23 @@ public class SimpleUnparser implements UnParser {
 
         }
 
-        return null;
+        return "";
     }
 
-    private StringBuilder unparseSelectQueryEmptyClause() {
-        return new StringBuilder();/* empty */
+    private CharSequence unparseSelectQueryEmptyClause() {
+        return "";/* empty */
     }
 
-    private StringBuilder unparseSelectQueryAxesClause(SelectQueryAxesClause clause) {
-
-        String ret = clause.selectQueryAxisClauses().stream().map(this::unparseSelectQueryAxisClause)
-                .map(Object::toString).collect(Collectors.joining("\r\n,"));
-        return new StringBuilder(ret);
+    private CharSequence unparseSelectQueryAxesClause(SelectQueryAxesClause clause) {
+        return clause.selectQueryAxisClauses().stream()
+            .map(this::unparseSelectQueryAxisClause)
+            .collect(StringBuilder::new, (sb, obj) -> {
+                if (sb.length() > 0) sb.append(DELIMITER).append(",");
+                sb.append(obj);
+            }, StringBuilder::append);
     }
 
-    public StringBuilder unparseSelectQueryAxisClause(SelectQueryAxisClause clause) {
+    public CharSequence unparseSelectQueryAxisClause(SelectQueryAxisClause clause) {
         StringBuilder sb = new StringBuilder();
 
         if (clause.nonEmpty()) {
@@ -269,7 +231,7 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseExpression(MdxExpression expression) {
+    public CharSequence unparseExpression(MdxExpression expression) {
 
         if (expression instanceof CallExpression ce) {
             return unparseCallExpression(ce);
@@ -284,10 +246,10 @@ public class SimpleUnparser implements UnParser {
             return unparseObjectIdentifier(oi);
         }
 
-        return null;
+        return new StringBuilder();
     }
 
-    private StringBuilder unparseObjectIdentifier(ObjectIdentifier objectIdentifier) {
+    private CharSequence unparseObjectIdentifier(ObjectIdentifier objectIdentifier) {
 
         if (objectIdentifier instanceof KeyObjectIdentifier koi) {
 
@@ -298,10 +260,10 @@ public class SimpleUnparser implements UnParser {
             return unparseNameObjectIdentifier(noi);
 
         }
-        return null;
+        return "";
     }
 
-    private StringBuilder unparseKeyObjectIdentifier(KeyObjectIdentifier koi) {
+    private CharSequence unparseKeyObjectIdentifier(KeyObjectIdentifier koi) {
         StringBuilder sb = new StringBuilder();
 
         String s = koi.nameObjectIdentifiers().stream().map(this::unparseNameObjectIdentifier).map(Object::toString)
@@ -311,18 +273,25 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    private StringBuilder unparseCompoundId(CompoundId compoundId) {
-        String s = compoundId.objectIdentifiers().stream().map(this::unparseObjectIdentifier)
-                .collect(Collectors.joining("."));
-        return new StringBuilder(s);
+    private CharSequence unparseCompoundId(CompoundId compoundId) {
+        return compoundId.objectIdentifiers().stream()
+            .map(this::unparseObjectIdentifier)
+            .collect(
+                StringBuilder::new,
+                (sb, part) -> {
+                    if (sb.length() > 0) sb.append('.');
+                    sb.append(part);
+                },
+                StringBuilder::append
+            );
     }
 
-    private String unparseCompoundIds(List<? extends CompoundId> compoundIdList) {
+    private CharSequence unparseCompoundIds(List<? extends CompoundId> compoundIdList) {
         return compoundIdList.stream().map(this::unparseCompoundId).map(Object::toString)
                 .collect(Collectors.joining(","));
     }
 
-    private StringBuilder unparseLiteral(Literal literal) {
+    private CharSequence unparseLiteral(Literal literal) {
 
         if (literal instanceof NullLiteral) {
             return unparseNullLiteral();
@@ -340,19 +309,19 @@ public class SimpleUnparser implements UnParser {
 
         }
 
-        return null;
+        return "";
     }
 
-    private StringBuilder unparseSymbolLiteral(SymbolLiteral symbolLiteral) {
+    private CharSequence unparseSymbolLiteral(SymbolLiteral symbolLiteral) {
         return new StringBuilder(symbolLiteral.value());
     }
 
-    private StringBuilder unparseStringLiteral(StringLiteral stringLiteral) {
+    private CharSequence unparseStringLiteral(StringLiteral stringLiteral) {
         return new StringBuilder(stringLiteral.value());
 
     }
 
-    private StringBuilder unparseNumericLiteral(NumericLiteral numericLiteral) {
+    private CharSequence unparseNumericLiteral(NumericLiteral numericLiteral) {
         return new StringBuilder(numericLiteral.value().toString());
 
     }
@@ -362,11 +331,11 @@ public class SimpleUnparser implements UnParser {
 
     }
 
-    private StringBuilder unparseCallExpression(CallExpression callExpression) {
+    private CharSequence unparseCallExpression(CallExpression callExpression) {
         StringBuilder sb = new StringBuilder();
         String name = callExpression.operationAtom().name();
         List<? extends MdxExpression> expressions = callExpression.expressions();
-        String expressionText;
+        CharSequence expressionText;
         String object = "";
         if (callExpression.operationAtom() instanceof MethodOperationAtom && !expressions.isEmpty()) {
             expressionText = unparseExpressions(expressions.subList(1, expressions.size()));
@@ -378,22 +347,28 @@ public class SimpleUnparser implements UnParser {
         case AmpersandQuotedPropertyOperationAtom _UNNAMED ->
             sb.append(expressionText).append(".[&").append(name).append("]");
         case BracesOperationAtom _UNNAMED -> sb.append("{").append(expressionText).append("}");
-        case CastOperationAtom _UNNAMED -> sb.append("CAST(").append(expressionText.replace(",", " AS ")).append(")");
+        case CastOperationAtom _UNNAMED -> sb.append("CAST(").append(expressionText.toString().replace(",", " AS ")).append(")");
         case CaseOperationAtom _UNNAMED -> {
-            int size = expressions.size();
             sb.append("CASE ");
             sb.append(unparseExpression(expressions.get(0)));
-
-            for (int i = 1; i < size - 1; i++) {
-                sb.append(" WHEN ");
-                sb.append(unparseExpression(expressions.get(i)));
-
+            int i = 0;
+            boolean hasElse = false;
+            if ((expressions.size() - 1) > 2 && (expressions.size() - 1) % 2 != 0) {
+                hasElse = true;
             }
-
-            sb.append(" THEN ");
-            sb.append(unparseExpression(expressions.get(size - 1)));
-            sb.append(" END ");
-
+            for (int j = 1; j < expressions.size() - 1; j += 2) {
+                sb.append(" WHEN ");
+                sb.append(unparseExpression(expressions.get(j)));
+                if (j + 1 < expressions.size()) {
+                    sb.append(" THEN ");
+                    sb.append(unparseExpression(expressions.get(j + 1)));
+                }
+            }
+            if (hasElse) {
+                sb.append(" ELSE ");
+                sb.append(unparseExpression(expressions.get(expressions.size() - 1)));
+            }
+            sb.append(" END");
         }
         case EmptyOperationAtom _UNNAMED -> sb.append("");
         case FunctionOperationAtom _UNNAMED -> sb.append(name).append("(").append(expressionText).append(")");
@@ -418,43 +393,57 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    private String unparseExpressions(List<? extends MdxExpression> expressions) {
-        return expressions.stream().map(this::unparseExpression).map(Object::toString).collect(Collectors.joining(","));
+    private CharSequence unparseExpressions(List<? extends MdxExpression> expressions) {
+        return expressions.stream()
+            .map(this::unparseExpression)
+            .collect(
+                StringBuilder::new,
+                (sb, part) -> {
+                    if (sb.length() > 0) sb.append(',');
+                    sb.append(part);
+                },
+                StringBuilder::append
+            );
     }
 
-    private StringBuilder unparseSelectQueryAsteriskClause() {
-        return new StringBuilder("*");
+    private CharSequence unparseSelectQueryAsteriskClause() {
+        return "*";
     }
 
-    public StringBuilder unparseSelectWithClauses(List<? extends SelectWithClause> clauses) {
-
-        String s = clauses.stream().map(this::unparseSelectWithClause).map(Object::toString)
-                .collect(Collectors.joining(DELIMITER));
-        return new StringBuilder(s);
-
+    public CharSequence unparseSelectWithClauses(List<? extends SelectWithClause> clauses) {
+        return clauses.stream()
+            .map(this::unparseSelectWithClause)
+            .collect(
+                StringBuilder::new,
+                (sb, part) -> {
+                    if (sb.length() > 0) sb.append(DELIMITER).append(" ");
+                    sb.append(part);
+                },
+                StringBuilder::append
+            );
     }
 
-    public StringBuilder unparseSelectWithClause(SelectWithClause clause) {
-        if (clause instanceof CreateCellCalculationBodyClause) {
-            return unparseCreateCellCalculationBodyClause();
+    public CharSequence unparseSelectWithClause(SelectWithClause clause) {
+        if (clause instanceof CreateCellCalculationBodyClause cccbc) {
+            return unparseCreateCellCalculationBodyClause(cccbc);
         } else if (clause instanceof CreateMemberBodyClause c) {
             return unparseCreateMemberBodyClause(c);
         } else if (clause instanceof CreateSetBodyClause c) {
             return unparseCreateSetBodyClause(c);
-        } else if (clause instanceof MeasureBodyClause) {
-            return unparseMeasureBodyClause();
+        } else if (clause instanceof MeasureBodyClause mbc) {
+            return unparseMeasureBodyClause(mbc);
         }
-        return new StringBuilder();
+        return "";
 
     }
 
-    public StringBuilder unparseCreateCellCalculationBodyClause() {
-
-        return new StringBuilder();
+    public CharSequence unparseCreateCellCalculationBodyClause(CreateCellCalculationBodyClause cccbc) {
+        //TODO
+        return "";
 
     }
 
-    public StringBuilder unparseCreateMemberBodyClause(CreateMemberBodyClause clause) {
+    public CharSequence unparseCreateMemberBodyClause(CreateMemberBodyClause clause) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("MEMBER ");
@@ -473,7 +462,7 @@ public class SimpleUnparser implements UnParser {
 
     }
 
-    public StringBuilder unparseMemberPropertyDefinition(MemberPropertyDefinition mpd) {
+    public CharSequence unparseMemberPropertyDefinition(MemberPropertyDefinition mpd) {
 
         StringBuilder sb = new StringBuilder();
         sb.append(unparseObjectIdentifier(mpd.objectIdentifier()));
@@ -482,7 +471,7 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseCreateSetBodyClause(CreateSetBodyClause clause) {
+    public CharSequence unparseCreateSetBodyClause(CreateSetBodyClause clause) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("SET ");
@@ -492,29 +481,30 @@ public class SimpleUnparser implements UnParser {
 
     }
 
-    public StringBuilder unparseMeasureBodyClause() {
+    public CharSequence unparseMeasureBodyClause(MeasureBodyClause mbc) {
         return new StringBuilder();
 
     }
 
-    public StringBuilder unparseDrillthroughStatement(DrillthroughStatement statement) {
+    public CharSequence unparseDrillthroughStatement(DrillthroughStatement statement) {
         StringBuilder sb = new StringBuilder();
         sb.append("DRILLTHROUGH");
 
-        statement.maxRows().ifPresent(sb.append(DELIMITER).append("MAXROWS").append(" ")::append);
+        statement.maxRows().ifPresent(maxRows ->
+        sb.append(DELIMITER).append(" ").append("MAXROWS").append(" ").append(maxRows));
 
-        statement.firstRowSet().ifPresent(sb.append(DELIMITER).append("FIRSTROWSET").append(" ")::append);
+        statement.firstRowSet().ifPresent(firstRowSet -> sb.append(DELIMITER).append(" ").append("FIRSTROWSET").append(" ").append(firstRowSet));
 
-        sb.append(DELIMITER).append(unparseSelectStatement(statement.selectStatement()));
+        sb.append(DELIMITER).append(" ").append(unparseSelectStatement(statement.selectStatement()));
 
         if (statement.returnItems() != null && !statement.returnItems().isEmpty()) {
-            sb.append(DELIMITER).append(unparseReturnItems(statement.returnItems()));
+            sb.append(DELIMITER).append(" ").append(unparseReturnItems(statement.returnItems()));
         }
 
         return sb;
     }
 
-    public StringBuilder unparseReturnItems(List<? extends ReturnItem> returnItems) {
+    public CharSequence unparseReturnItems(List<? extends ReturnItem> returnItems) {
         StringBuilder sb = new StringBuilder();
         if (!returnItems.isEmpty()) {
             sb.append("RETURN ");
@@ -524,35 +514,35 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseExplainStatement(ExplainStatement selectStatement) {
+    public CharSequence unparseExplainStatement(ExplainStatement statement) {
         StringBuilder sb = new StringBuilder();
         sb.append("EXPLAIN PLAN FOR");
-        if (selectStatement.mdxStatement() != null) {
-            sb.append(DELIMITER).append(unparseMdxStatement(selectStatement.mdxStatement()));
+        if (statement.mdxStatement() != null) {
+            sb.append(DELIMITER).append(" ").append(unparseMdxStatement(statement.mdxStatement()));
         }
         return sb;
     }
 
-    public StringBuilder unparseDMVStatement(DMVStatement selectStatement) {
+    public CharSequence unparseDMVStatement(DMVStatement statement) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ").append(DELIMITER);
-        sb.append(unparseCompoundIds(selectStatement.columns())).append(DELIMITER);
-        sb.append("FROM $SYSTEM.").append(unparseNameObjectIdentifier(selectStatement.table()));
-        if (selectStatement.where() != null) {
-            sb.append(DELIMITER).append("WHERE ").append(unparseExpression(selectStatement.where()));
+        sb.append("SELECT ").append(DELIMITER).append(" ");
+        sb.append(unparseCompoundIds(statement.columns())).append(DELIMITER).append(" ");
+        sb.append("FROM $SYSTEM.").append(unparseNameObjectIdentifier(statement.table()));
+        if (statement.where() != null) {
+            sb.append(DELIMITER).append(" ").append("WHERE ").append(unparseExpression(statement.where()));
         }
         return sb;
     }
 
-    public StringBuilder unparseRefreshStatement(RefreshStatement selectStatement) {
+    public CharSequence unparseRefreshStatement(RefreshStatement statement) {
         StringBuilder sb = new StringBuilder();
-        if (selectStatement.cubeName() != null) {
-            sb.append("REFRESH CUBE ").append(unparseNameObjectIdentifier(selectStatement.cubeName()));
+        if (statement.cubeName() != null) {
+            sb.append("REFRESH CUBE ").append(unparseNameObjectIdentifier(statement.cubeName()));
         }
         return sb;
     }
 
-    public StringBuilder unparseUpdateStatement(UpdateStatement updateStatement) {
+    public CharSequence unparseUpdateStatement(UpdateStatement updateStatement) {
         StringBuilder sb = new StringBuilder();
         if (updateStatement.cubeName() != null) {
             sb.append("UPDATE CUBE ").append(unparseNameObjectIdentifier(updateStatement.cubeName()));
@@ -560,11 +550,11 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public StringBuilder unparseSelectDimensionPropertyListClause(SelectDimensionPropertyListClause clause) {
+    public CharSequence unparseSelectDimensionPropertyListClause(SelectDimensionPropertyListClause clause) {
         StringBuilder sb = new StringBuilder();
         if (clause.properties() != null) {
             sb.append("DIMENSION");
-            sb.append(DELIMITER);
+            sb.append(DELIMITER).append(" ");
             sb.append("PROPERTIES ");
             sb.append(unparseCompoundIds(clause.properties()));
         }
@@ -572,7 +562,7 @@ public class SimpleUnparser implements UnParser {
     }
 
     @Override
-    public StringBuilder unparseMdxStatement(MdxStatement mdxStatement) {
+    public CharSequence unparseMdxStatement(MdxStatement mdxStatement) {
 
         if (mdxStatement instanceof SelectStatement selectStatement) {
             return unparseSelectStatement(selectStatement);
@@ -582,12 +572,15 @@ public class SimpleUnparser implements UnParser {
             return unparseExplainStatement(explainStatement);
         } else if (mdxStatement instanceof DMVStatement dMVStatement) {
             return unparseDMVStatement(dMVStatement);
+        } else if (mdxStatement instanceof RefreshStatement dMVStatement) {
+            return unparseRefreshStatement(dMVStatement);
+        } else if (mdxStatement instanceof UpdateStatement dMVStatement) {
+            return unparseUpdateStatement(dMVStatement);
         }
-
-        return new StringBuilder();
+        return "";
     }
 
-    public StringBuilder unparseAxis(Axis axis) {
+    public CharSequence unparseAxis(Axis axis) {
         return new StringBuilder().append(axis.named() ? axis.name().toUpperCase() : axis.ordinal());
 
     }

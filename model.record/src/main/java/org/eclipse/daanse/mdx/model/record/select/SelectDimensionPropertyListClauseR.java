@@ -14,10 +14,16 @@
 package org.eclipse.daanse.mdx.model.record.select;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.select.SelectDimensionPropertyListClause;
 
 public record SelectDimensionPropertyListClauseR(List<CompoundId> properties) implements SelectDimensionPropertyListClause {
+
+    public SelectDimensionPropertyListClauseR{
+        Objects.requireNonNull(properties, "properties must not be null");
+        properties = List.copyOf(properties);
+    }
 
 }

@@ -58,7 +58,7 @@ public record AxisR(int ordinal, boolean named) implements Axis {
     }
 
     public static boolean isFilter(AxisR axis) {
-        return axis == SLICER;
+        return axis.ordinal == SLICER.ordinal;
     }
 
     @Override

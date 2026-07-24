@@ -204,9 +204,62 @@ class SimpleUnparserExpressionTest {
             CompoundId compoundId3 = new CompoundIdR(List.of(objectIdentifier3));
             CallExpression callExpression = new CallExpressionR(new CaseOperationAtom("_CaseMatch"),
                     List.of(compoundId1, compoundId2, compoundId3));
-            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b THEN c END ");
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b THEN c END");
         }
 
+        @Test
+        void testCallExpressionTermCaseWithElse() {
+            NameObjectIdentifier objectIdentifier1 = new NameObjectIdentifierR("a", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier2 = new NameObjectIdentifierR("b", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier3 = new NameObjectIdentifierR("c", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier4 = new NameObjectIdentifierR("d", Quoting.UNQUOTED);
+            CompoundId compoundId1 = new CompoundIdR(List.of(objectIdentifier1));
+            CompoundId compoundId2 = new CompoundIdR(List.of(objectIdentifier2));
+            CompoundId compoundId3 = new CompoundIdR(List.of(objectIdentifier3));
+            CompoundId compoundId4 = new CompoundIdR(List.of(objectIdentifier4));
+            CallExpression callExpression = new CallExpressionR(new CaseOperationAtom("_CaseMatch"),
+                    List.of(compoundId1, compoundId2, compoundId3, compoundId4));
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b THEN c ELSE d END");
+        }
+
+        @Test
+        void testCallExpressionTermCaseMultyWithElse() {
+            NameObjectIdentifier objectIdentifier1 = new NameObjectIdentifierR("a", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier2 = new NameObjectIdentifierR("b1", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier3 = new NameObjectIdentifierR("c1", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier4 = new NameObjectIdentifierR("b2", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier5 = new NameObjectIdentifierR("c2", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier6 = new NameObjectIdentifierR("d", Quoting.UNQUOTED);
+
+            CompoundId compoundId1 = new CompoundIdR(List.of(objectIdentifier1));
+            CompoundId compoundId2 = new CompoundIdR(List.of(objectIdentifier2));
+            CompoundId compoundId3 = new CompoundIdR(List.of(objectIdentifier3));
+            CompoundId compoundId4 = new CompoundIdR(List.of(objectIdentifier4));
+            CompoundId compoundId5 = new CompoundIdR(List.of(objectIdentifier5));
+            CompoundId compoundId6 = new CompoundIdR(List.of(objectIdentifier6));
+            CallExpression callExpression = new CallExpressionR(new CaseOperationAtom("_CaseMatch"),
+                    List.of(compoundId1, compoundId2, compoundId3, compoundId4, compoundId5, compoundId6));
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b1 THEN c1 WHEN b2 THEN c2 ELSE d END");
+        }
+
+        @Test
+        void testCallExpressionTermCaseMultyWithoutElse() {
+            NameObjectIdentifier objectIdentifier1 = new NameObjectIdentifierR("a", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier2 = new NameObjectIdentifierR("b1", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier3 = new NameObjectIdentifierR("c1", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier4 = new NameObjectIdentifierR("b2", Quoting.UNQUOTED);
+            NameObjectIdentifier objectIdentifier5 = new NameObjectIdentifierR("c2", Quoting.UNQUOTED);
+
+            CompoundId compoundId1 = new CompoundIdR(List.of(objectIdentifier1));
+            CompoundId compoundId2 = new CompoundIdR(List.of(objectIdentifier2));
+            CompoundId compoundId3 = new CompoundIdR(List.of(objectIdentifier3));
+            CompoundId compoundId4 = new CompoundIdR(List.of(objectIdentifier4));
+            CompoundId compoundId5 = new CompoundIdR(List.of(objectIdentifier5));
+
+            CallExpression callExpression = new CallExpressionR(new CaseOperationAtom("_CaseMatch"),
+                    List.of(compoundId1, compoundId2, compoundId3, compoundId4, compoundId5));
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b1 THEN c1 WHEN b2 THEN c2 END");
+        }
         @Test
         void testCallExpressionBraces1() {
             NameObjectIdentifier objectIdentifier = new NameObjectIdentifierR("expression", Quoting.UNQUOTED);

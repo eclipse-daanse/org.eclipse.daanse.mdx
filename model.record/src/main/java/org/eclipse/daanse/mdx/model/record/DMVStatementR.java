@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.record;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
@@ -24,5 +25,10 @@ import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 public record DMVStatementR(List<CompoundId> columns,
                             NameObjectIdentifier table,
                             MdxExpression where) implements DMVStatement {
+
+    public DMVStatementR{
+        Objects.requireNonNull(columns, "columns must not be null");
+        columns = List.copyOf(columns);
+    }
 
 }

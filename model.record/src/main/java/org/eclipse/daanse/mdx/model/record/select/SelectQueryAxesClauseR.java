@@ -14,11 +14,17 @@
 package org.eclipse.daanse.mdx.model.record.select;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxesClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectQueryAxisClause;
 
 public record SelectQueryAxesClauseR(List<SelectQueryAxisClause> selectQueryAxisClauses)
         implements SelectQueryAxesClause {
+
+    public SelectQueryAxesClauseR{
+        Objects.requireNonNull(selectQueryAxisClauses, "selectQueryAxisClauses must not be null");
+        selectQueryAxisClauses = List.copyOf(selectQueryAxisClauses);
+    }
 
 }
