@@ -52,7 +52,6 @@ import org.eclipse.daanse.mdx.model.api.ReturnItem;
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
 import org.eclipse.daanse.mdx.model.api.UpdateStatement;
-import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
@@ -110,7 +109,6 @@ import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseNameR;
 import org.eclipse.daanse.mdx.model.record.select.SelectCubeClauseSubStatementR;
 import org.eclipse.daanse.mdx.model.record.RefreshStatementR;
 import org.eclipse.daanse.mdx.model.record.UpdateStatementR;
-import org.eclipse.daanse.mdx.model.record.DMVStatementR;
 import org.eclipse.daanse.mdx.model.api.expression.operation.BracesOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.CaseOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.CastOperationAtom;
@@ -189,7 +187,6 @@ TOKEN :
 | < XOR : "XOR" >
 | < WITH : "WITH" >
 | < EXISTING : "EXISTING" >
-| < SYSTEM_CUBE : "$SYSTEM" >
 ;
 
 
@@ -436,8 +433,6 @@ MdxStatement parseMdxStatement :
   MdxStatement mdxStatement = null;
 }
 (
-    mdxStatement = parseDMVStatement
-  	|
     mdxStatement = parseSelectStatement
   	|
   	mdxStatement = parseDrillthroughStatement
@@ -1572,33 +1567,6 @@ UpdateClause updateClause :
   {
     return new UpdateClauseR(t, v, a, Optional.ofNullable(w));
   }
-;
-
-DMVStatement parseDMVStatement :
-{
-  CompoundId c;
-  List<CompoundId> columns = new ArrayList<>();
-  NameObjectIdentifier tableId = null;
-  MdxExpression expression = null;
-}
-  < SELECT >
-(
-    c = parseCompoundId()
-    { columns.add(c); }
-    (
-        < COMMA > c = parseCompoundId()
-        { columns.add(c); }
-    )*
-
-)?
-< FROM > < SYSTEM_CUBE > =>||
-< DOT > tableId = parseNameObjectIdentifier()
-(
-          < WHERE > expression = parseExpression()
-)?
-{
-    return new DMVStatementR(columns, tableId, Optional.ofNullable(expression));
-}
 ;
 
 // <SelectQueryAxisClause> ::= [NON EMPTY] <set> [<dimProps>] ON <axis_name>

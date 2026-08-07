@@ -42,8 +42,6 @@
 //
 MdxStatement MdxStatement#interface :
   (
-    DMVStatement
-  	|
     SelectStatement
   	|
   	DrillthroughStatement
@@ -223,44 +221,6 @@ UpdateClause :
     < BY > Expression()
   )?
 
-;
-
-INJECT DMVStatement :
-   implements MdxStatement, org.eclipse.daanse.mdx.model.api.DMVStatement;
-{
-    public java.util.List<CompoundId> columns() {
-        return childrenOfType(CompoundId.class);
-    }
-
-    public NameObjectIdentifier table() {
-       return (NameObjectIdentifier) firstChildOfType(DOT).nextSibling();
-    }
-
-    public Optional<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> where() {
-        Node where = firstChildOfType(WHERE);
-        return where == null ? Optional.empty()
-                             :  Optional.of((org.eclipse.daanse.mdx.model.api.expression.MdxExpression) where.nextSibling());
-    }
-}
-
-#DMVStatement :
-  < SELECT >
-  (
-    CompoundId
-    (
-        < COMMA > CompoundId
-    )*
-  )?
-  < FROM >
-  < SYSTEM_CUBE > =>||
-  < DOT >
-  NameObjectIdentifier
-  (
-     < WHERE > Expression()
-  )?
-  {
-     return CURRENT_NODE;
-  }
 ;
 
 INJECT SelectQueryAxisClause :

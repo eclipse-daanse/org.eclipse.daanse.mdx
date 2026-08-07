@@ -41,11 +41,6 @@
     <genClasses ecoreClass="mdx.ecore#//ExplainStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//ExplainStatement/mdxStatement"/>
     </genClasses>
-    <genClasses ecoreClass="mdx.ecore#//DMVStatement">
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/columns"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/table"/>
-      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DMVStatement/where"/>
-    </genClasses>
     <genClasses ecoreClass="mdx.ecore#//RefreshStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//RefreshStatement/cubeName"/>
     </genClasses>

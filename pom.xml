@@ -28,7 +28,7 @@
   <description>Complete MDX (Multi-Dimensional Expressions) language processing
     framework with advanced parsing, abstract syntax tree modeling, and code
     generation capabilities. Provides comprehensive support for MDX statement
-    types including SELECT, drillthrough, DMV queries, and calculated
+    types including SELECT, drillthrough, and calculated
     expressions with pluggable parser implementations and bidirectional text
     conversion.</description>
 

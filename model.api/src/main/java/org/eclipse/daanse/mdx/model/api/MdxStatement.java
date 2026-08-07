@@ -13,7 +13,7 @@
 */
 package org.eclipse.daanse.mdx.model.api;
 
-public sealed interface MdxStatement permits SelectStatement, DrillthroughStatement, ExplainStatement, DMVStatement,
+public sealed interface MdxStatement permits SelectStatement, DrillthroughStatement, ExplainStatement,
         RefreshStatement, UpdateStatement {
 
 }

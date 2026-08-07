@@ -16,7 +16,6 @@ package org.eclipse.daanse.mdx.parser.api;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
@@ -48,8 +47,6 @@ public interface MdxParser {
     MdxExpression parseExpression() throws MdxParserException;
 
     SelectCubeClause parseSelectCubeClause() throws MdxParserException;
-
-    DMVStatement parseDMVStatement() throws MdxParserException;
 
     DrillthroughStatement parseDrillthroughStatement() throws MdxParserException;
 

@@ -50,17 +50,6 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="mdxStatement" lowerBound="1"
         eType="#//MdxStatement" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="DMVStatement" eSuperTypes="#//MdxStatement">
-    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
-      <details key="documentation" value="Represents a Data Management View (DMV) statement"/>
-    </eAnnotations>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="columns" upperBound="-1"
-        eType="#//CompoundId" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="table" lowerBound="1" eType="#//NameObjectIdentifier"
-        containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="where" eType="#//MdxExpression"
-        containment="true"/>
-  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="RefreshStatement" eSuperTypes="#//MdxStatement">
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Represents a REFRESH statement"/>

@@ -20,7 +20,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
@@ -308,15 +307,4 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         }
     }
 
-    @Override
-    public DMVStatement parseDMVStatement() throws MdxParserException {
-        try {
-            delegate.DMVStatement();
-            return (DMVStatement) delegate.peekNode();
-        } catch (Exception e) {
-            throw wrap(e);
-        } finally {
-            dump();
-        }
-    }
 }

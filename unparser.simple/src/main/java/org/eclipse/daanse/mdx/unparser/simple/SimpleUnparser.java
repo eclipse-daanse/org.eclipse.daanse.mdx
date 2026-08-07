@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.daanse.mdx.model.api.DMVStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
@@ -487,15 +486,6 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
-    public CharSequence unparseDMVStatement(DMVStatement statement) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ").append(DELIMITER).append(" ");
-        sb.append(unparseCompoundIds(statement.columns())).append(DELIMITER).append(" ");
-        sb.append("FROM $SYSTEM.").append(unparseNameObjectIdentifier(statement.table()));
-        statement.where().ifPresent(w -> sb.append(DELIMITER).append(" ").append("WHERE ").append(unparseExpression(w)));
-        return sb;
-    }
-
     public CharSequence unparseRefreshStatement(RefreshStatement statement) {
         StringBuilder sb = new StringBuilder();
         if (statement.cubeName() != null) {
@@ -545,7 +535,6 @@ public class SimpleUnparser implements UnParser {
             case SelectStatement s       -> unparseSelectStatement(s);
             case DrillthroughStatement s -> unparseDrillthroughStatement(s);
             case ExplainStatement s      -> unparseExplainStatement(s);
-            case DMVStatement s          -> unparseDMVStatement(s);
             case RefreshStatement s      -> unparseRefreshStatement(s);
             case UpdateStatement s       -> unparseUpdateStatement(s);
         };
