@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
+import org.eclipse.daanse.mdx.model.api.TransactionStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
 import org.eclipse.daanse.mdx.model.api.ReturnItem;
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
@@ -494,6 +495,10 @@ public class SimpleUnparser implements UnParser {
         return sb;
     }
 
+    public CharSequence unparseTransactionStatement(TransactionStatement statement) {
+        return new StringBuilder().append(statement.kind().name()).append(" TRANSACTION");
+    }
+
     public CharSequence unparseUpdateStatement(UpdateStatement updateStatement) {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE CUBE ").append(unparseNameObjectIdentifier(updateStatement.cubeName()));
@@ -537,6 +542,7 @@ public class SimpleUnparser implements UnParser {
             case ExplainStatement s      -> unparseExplainStatement(s);
             case RefreshStatement s      -> unparseRefreshStatement(s);
             case UpdateStatement s       -> unparseUpdateStatement(s);
+            case TransactionStatement s  -> unparseTransactionStatement(s);
         };
     }
 

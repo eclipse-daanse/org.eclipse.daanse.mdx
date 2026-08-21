@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2023 Contributors to the Eclipse Foundation.
+* Copyright (c) 2026 Contributors to the Eclipse Foundation.
 *
 * This program and the accompanying materials are made
 * available under the terms of the Eclipse Public License 2.0
@@ -11,9 +11,11 @@
 *   SmartCity Jena - initial
 *   Stefan Bischof (bipolis.org) - initial
 */
-package org.eclipse.daanse.mdx.model.api;
+package org.eclipse.daanse.mdx.model.record;
 
-public sealed interface MdxStatement permits SelectStatement, DrillthroughStatement, ExplainStatement,
-        RefreshStatement, UpdateStatement, TransactionStatement {
+import org.eclipse.daanse.mdx.model.api.TransactionKind;
+import org.eclipse.daanse.mdx.model.api.TransactionStatement;
+
+public record TransactionStatementR(TransactionKind kind) implements TransactionStatement {
 
 }

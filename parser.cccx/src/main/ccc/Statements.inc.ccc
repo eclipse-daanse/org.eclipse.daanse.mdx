@@ -47,6 +47,12 @@ MdxStatement MdxStatement#interface :
   	DrillthroughStatement
     |
     ExplainStatement
+    |
+    RefreshStatement
+    |
+    UpdateStatement
+    |
+    TransactionStatement
   )
   {MdxStatement result = (MdxStatement) peekNode();}
   < EOF >
@@ -137,7 +143,7 @@ SelectDimensionPropertyListClause :
 ;
 
 INJECT RefreshStatement :
-   implements org.eclipse.daanse.mdx.model.api.RefreshStatement;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.RefreshStatement;
 {
    public NameObjectIdentifier cubeName() {
       return (NameObjectIdentifier) get(2);
@@ -150,9 +156,33 @@ RefreshStatement :
   NameObjectIdentifier
 ;
 
+INJECT TransactionStatement :
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.TransactionStatement;
+{
+   public org.eclipse.daanse.mdx.model.api.TransactionKind kind() {
+      NodeType type = getFirstChild().getType();
+      if (type == BEGIN) return org.eclipse.daanse.mdx.model.api.TransactionKind.BEGIN;
+      if (type == COMMIT) return org.eclipse.daanse.mdx.model.api.TransactionKind.COMMIT;
+      if (type == ROLLBACK) return org.eclipse.daanse.mdx.model.api.TransactionKind.ROLLBACK;
+      throw new IllegalStateException("Transaction kind parsing error");
+   }
+}
+
+TransactionStatement :
+  (
+    < BEGIN >
+    |
+    < COMMIT >
+    |
+    < ROLLBACK >
+  )
+  // TRAN is the abbreviation every client that sends the long form also accepts.
+  ( < TRANSACTION > | < TRAN > )
+;
+
 INJECT UpdateStatement :
    import java.util.List;
-   implements org.eclipse.daanse.mdx.model.api.UpdateStatement;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.UpdateStatement;
 {
    public NameObjectIdentifier cubeName() {
       return (NameObjectIdentifier) get(2);
