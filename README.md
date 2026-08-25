@@ -20,3 +20,4 @@ Import in IDE: initially `mvn generate-sources` (CongoCC generates in `src/gen/j
     MdxStatement stmt = mdxParserProvider.newParser("SELECT [a] ON COLUMNS FROM [c]", Set.of())
                                          .parseMdxStatement();
     CharSequence mdx  = unParser.unparseMdxStatement(stmt);
+
