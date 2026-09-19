@@ -14,5 +14,10 @@
 package org.eclipse.daanse.mdx.model.api.expression;
 
 public non-sealed interface StringLiteral extends Literal {
+    /**
+     * The decoded text: without the surrounding quotes, a doubled quote is one
+     * quote. Writing the delimiters and the escapes is the job of whoever turns
+     * the model into text, never of the one who fills it.
+     */
     String value();
 }

@@ -14,6 +14,12 @@
 package org.eclipse.daanse.mdx.model.api.expression;
 
 public non-sealed interface NameObjectIdentifier extends ObjectIdentifier {
+    /**
+     * The decoded name: without brackets and without {@code &}, {@code ]]} is one
+     * {@code ]}. The {@link #quoting()} tells how it was written.
+     *
+     * @see StringLiteral#value()
+     */
     String name();
 
     Quoting quoting();

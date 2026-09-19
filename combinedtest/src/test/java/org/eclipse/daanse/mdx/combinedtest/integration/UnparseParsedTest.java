@@ -28,7 +28,7 @@ import org.osgi.test.common.annotation.InjectService;
 import org.osgi.test.common.service.ServiceAware;
 
 @RequireServiceComponentRuntime
-class UnparseParsedTest {
+public class UnparseParsedTest {
 
     public static Set<String> reservedWords = Set.of("ORDINAL", "VALUE", "DATAMEMBER", "MEMBER_CAPTION", "FIRSTSIBLING",
             "CURRENTMEMBER", "CURRENTORDINAL", "DIMENSION", "LASTSIBLING", "PARENT", "NEXTMEMBER", "UNIQUE_NAME",

@@ -135,24 +135,28 @@ class ExpressionTest {
             checkArgument((CallExpression) clause, 0, "object");
         }
 
-        @Disabled
+        // after a plain identifier a quoted name extends the compound id, the
+        // property forms only exist on the result of a call
         @Test
         void testCallExpressionPropertyQuoted(@InjectService MdxParserProvider mdxParserProvider)
                 throws MdxParserException {
-            MdxExpression clause = mdxParserProvider.newParser("object.&PROPERTY", propertyWords).parseExpression();
+            MdxExpression clause = mdxParserProvider.newParser("Foo().[PRO]]PERTY]", propertyWords)
+                    .parseExpression();
             assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
             assertThat(((CallExpression) clause).operationAtom())
-                    .isEqualTo(new QuotedPropertyOperationAtom("PROPERTY"));
+                    .isEqualTo(new QuotedPropertyOperationAtom("PRO]PERTY"));
+            assertThat(((CallExpression) clause).expressions()).hasSize(1);
         }
 
-        @Disabled
         @Test
         void testCallExpressionPropertyAmpersAndQuoted(@InjectService MdxParserProvider mdxParserProvider)
                 throws MdxParserException {
-            MdxExpression clause = mdxParserProvider.newParser("object.[&PROPERTY]", propertyWords).parseExpression();
+            MdxExpression clause = mdxParserProvider.newParser("Foo().&[PRO]]PERTY]", propertyWords)
+                    .parseExpression();
             assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
             assertThat(((CallExpression) clause).operationAtom())
-                    .isEqualTo(new AmpersandQuotedPropertyOperationAtom("PROPERTY"));
+                    .isEqualTo(new AmpersandQuotedPropertyOperationAtom("PRO]PERTY"));
+            assertThat(((CallExpression) clause).expressions()).hasSize(1);
         }
 
         @Test
@@ -437,6 +441,17 @@ class ExpressionTest {
             assertThat(clause).isInstanceOf(StringLiteral.class);
             StringLiteral numericLiteral = (StringLiteral) clause;
             assertThat(numericLiteral.value()).isEqualTo("String'Literal");
+        }
+
+        @Test
+        void testStringLiteralDoubledQuotes(@InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxExpression clause = mdxParserProvider.newParser("\"a \"\"b\"\", 'c'\"", propertyWords).parseExpression();
+            assertThat(clause).isInstanceOf(StringLiteral.class);
+            assertThat(((StringLiteral) clause).value()).isEqualTo("a \"b\", 'c'");
+
+            clause = mdxParserProvider.newParser("'it''s'", propertyWords).parseExpression();
+            assertThat(((StringLiteral) clause).value()).isEqualTo("it's");
         }
 
         @Test

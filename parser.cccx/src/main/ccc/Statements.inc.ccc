@@ -108,7 +108,7 @@ DrillthroughStatement :
 ;
 
 INJECT ExplainStatement :
-   implements org.eclipse.daanse.mdx.model.api.ExplainStatement
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.ExplainStatement
 {
     public org.eclipse.daanse.mdx.model.api.MdxStatement mdxStatement() {
       return firstChildOfType(org.eclipse.daanse.mdx.model.api.MdxStatement.class);
@@ -310,7 +310,7 @@ INJECT Axis :
       return switch(ordinal) {
          case -2-> "None";
          case -1-> "Slicer";
-         case 0 -> "Columms";
+         case 0 -> "Columns";
          case 1 -> "Rows";
          case 2 -> "Pages";
          case 3 -> "Chapters";

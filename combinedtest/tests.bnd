@@ -1,0 +1,7 @@
+# same as the parent, plus: the roundtrip tests run as plain JUnit and use the
+# unparser class directly, its package is not exported and not needed in OSGi
+Test-Cases: ${classes;HIERARCHY_INDIRECTLY_ANNOTATED;org.junit.platform.commons.annotation.Testable;CONCRETE;NAMED;*.integration.*}
+-fixupmessages: *for this fragment/require bundle cannot be found on the classpath
+-noextraheaders: true
+-noimportjava: true
+Import-Package: org.eclipse.daanse.mdx.unparser.simple;resolution:=optional,*
