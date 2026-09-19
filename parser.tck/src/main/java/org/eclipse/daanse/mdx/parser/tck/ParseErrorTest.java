@@ -75,4 +75,12 @@ class ParseErrorTest {
         assertThat(mdxParserProvider.newParser("select {OpeningPeriod()} on columns from Sales", Set.of())
                 .parseMdxStatement()).isNotNull();
     }
+
+    /** A parser is recursive, a parse of deep input still ends with the declared exception. */
+    @ParameterizedTest
+    @ValueSource(strings = { "NOT ", "(", "{", "f(", "CASE WHEN 1 THEN " })
+    void deepNestingIsAParserException(String open, @InjectService MdxParserProvider mdxParserProvider) {
+        String mdx = open.repeat(100_000) + "1";
+        assertThrows(MdxParserException.class, () -> mdxParserProvider.newParser(mdx, Set.of()).parseExpression());
+    }
 }

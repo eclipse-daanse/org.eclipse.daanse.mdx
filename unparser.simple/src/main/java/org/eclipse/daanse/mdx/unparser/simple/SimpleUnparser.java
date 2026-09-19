@@ -227,12 +227,17 @@ public class SimpleUnparser implements UnParser {
 
         // identifiers before literals: a parser may give one node that is both, only
         // the identifier knows its quoting
-        return switch (expression) {
-            case CallExpression s   -> unparseCallExpression(s);
-            case ObjectIdentifier s -> unparseObjectIdentifier(s);
-            case CompoundId s       -> unparseCompoundId(s);
-            case Literal s          -> unparseLiteral(s);
-        };
+        try {
+            return switch (expression) {
+                case CallExpression s   -> unparseCallExpression(s);
+                case ObjectIdentifier s -> unparseObjectIdentifier(s);
+                case CompoundId s       -> unparseCompoundId(s);
+                case Literal s          -> unparseLiteral(s);
+            };
+        } catch (StackOverflowError e) {
+            // a tree can be deeper than the stack: a chain of 100000 operators parses fine
+            throw new IllegalArgumentException("expression is nested too deep");
+        }
     }
 
     private CharSequence unparseObjectIdentifier(ObjectIdentifier objectIdentifier) {

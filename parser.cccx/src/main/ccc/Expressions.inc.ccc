@@ -26,6 +26,7 @@ INJECT BASE_NODE_CLASS :
 }
 
 Expression#interface :
+  { checkNesting(); }
   OrExpression
   (
     (
@@ -183,7 +184,7 @@ INJECT NegatedExpression :
 }
 
 NegatedExpression#(>1) :
-  <NOT> NegatedExpression
+  <NOT> { checkNesting(); } NegatedExpression
   |
   RelationalExpression
 ;
