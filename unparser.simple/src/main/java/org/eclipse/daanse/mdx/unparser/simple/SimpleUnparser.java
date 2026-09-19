@@ -125,7 +125,8 @@ public class SimpleUnparser implements UnParser {
         if (propertyList != null && !propertyList.isEmpty()) {
             sb.append("PROPERTIES ");
 
-            String properties = propertyList.stream().collect(Collectors.joining("\r\n, "));
+            String properties = propertyList.stream().map(p -> MdxEncoder.bare(p, "cell property"))
+                    .collect(Collectors.joining("\r\n, "));
             sb.append(properties);
         }
         return sb;
@@ -174,11 +175,12 @@ public class SimpleUnparser implements UnParser {
 
         StringBuilder sb = new StringBuilder();
         switch (nameObjectIdentifier.quoting()) {
-        case KEY -> sb.append("&").append(nameObjectIdentifier.name());
+        case KEY -> sb.append("&").append(MdxEncoder.bracket(nameObjectIdentifier.name()));
 
-        case QUOTED -> sb.append("[").append(nameObjectIdentifier.name().replace("]", "]]")).append("]");
+        case QUOTED -> sb.append(MdxEncoder.bracket(nameObjectIdentifier.name()));
 
-        case UNQUOTED -> sb.append(nameObjectIdentifier.name());
+        // a name that is no identifier token gets brackets, never raw text
+        case UNQUOTED -> sb.append(MdxEncoder.identifier(nameObjectIdentifier.name()));
 
         }
 
@@ -223,11 +225,13 @@ public class SimpleUnparser implements UnParser {
 
     public CharSequence unparseExpression(MdxExpression expression) {
 
+        // identifiers before literals: a parser may give one node that is both, only
+        // the identifier knows its quoting
         return switch (expression) {
             case CallExpression s   -> unparseCallExpression(s);
-            case Literal s          -> unparseLiteral(s);
-            case CompoundId s       -> unparseCompoundId(s);
             case ObjectIdentifier s -> unparseObjectIdentifier(s);
+            case CompoundId s       -> unparseCompoundId(s);
+            case Literal s          -> unparseLiteral(s);
         };
     }
 
@@ -277,11 +281,11 @@ public class SimpleUnparser implements UnParser {
     }
 
     private CharSequence unparseSymbolLiteral(SymbolLiteral symbolLiteral) {
-        return new StringBuilder(symbolLiteral.value());
+        return new StringBuilder(MdxEncoder.identifier(symbolLiteral.value()));
     }
 
     private CharSequence unparseStringLiteral(StringLiteral stringLiteral) {
-        return new StringBuilder(stringLiteral.value());
+        return new StringBuilder(MdxEncoder.string(stringLiteral.value()));
 
     }
 
@@ -309,9 +313,15 @@ public class SimpleUnparser implements UnParser {
         }
         switch (callExpression.operationAtom()) {
         case AmpersandQuotedPropertyOperationAtom _UNNAMED ->
-            sb.append(expressionText).append(".[&").append(name).append("]");
+            sb.append(expressionText).append(".&").append(MdxEncoder.bracket(name));
         case BracesOperationAtom _UNNAMED -> sb.append("{").append(expressionText).append("}");
-        case CastOperationAtom _UNNAMED -> sb.append("CAST(").append(expressionText.toString().replace(",", " AS ")).append(")");
+        case CastOperationAtom _UNNAMED -> {
+            if (expressions.size() != 2) {
+                throw new IllegalArgumentException("CAST needs an expression and a type, got " + expressions.size());
+            }
+            sb.append("CAST(").append(unparseExpression(expressions.get(0))).append(" AS ")
+                    .append(unparseExpression(expressions.get(1))).append(")");
+        }
         case CaseOperationAtom _UNNAMED -> {
             sb.append("CASE ");
             sb.append(unparseExpression(expressions.get(0)));
@@ -335,22 +345,28 @@ public class SimpleUnparser implements UnParser {
             sb.append(" END");
         }
         case EmptyOperationAtom _UNNAMED -> sb.append("");
-        case FunctionOperationAtom _UNNAMED -> sb.append(name).append("(").append(expressionText).append(")");
+        case FunctionOperationAtom _UNNAMED ->
+            sb.append(MdxEncoder.bare(name, "function name")).append("(").append(expressionText).append(")");
         case InfixOperationAtom _UNNAMED -> {
             sb.append(unparseExpression(expressions.get(0)));
             sb.append(" ");
-            sb.append(name);
+            sb.append(MdxEncoder.infixOperator(name));
             sb.append(" ");
             sb.append(unparseExpression(expressions.get(1)));
         }
         case InternalOperationAtom _UNNAMED -> sb.append("$").append(expressionText);
         case MethodOperationAtom _UNNAMED ->
-            sb.append(object).append(".").append(name).append("(").append(expressionText).append(")");
+            sb.append(object).append(".").append(MdxEncoder.bare(name, "method name")).append("(")
+                    .append(expressionText).append(")");
         case ParenthesesOperationAtom _UNNAMED -> sb.append("(").append(expressionText).append(")");
-        case PlainPropertyOperationAtom _UNNAMED -> sb.append(expressionText).append(".").append(name);
-        case PostfixOperationAtom _UNNAMED -> sb.append(expressionText).append(" ").append(name);
-        case PrefixOperationAtom _UNNAMED -> sb.append(name).append(" ").append(expressionText);
-        case QuotedPropertyOperationAtom _UNNAMED -> sb.append(expressionText).append(".&").append(name).append("");
+        case PlainPropertyOperationAtom _UNNAMED ->
+            sb.append(expressionText).append(".").append(MdxEncoder.bare(name, "property name"));
+        case PostfixOperationAtom _UNNAMED ->
+            sb.append(expressionText).append(" ").append(MdxEncoder.postfixOperator(name));
+        case PrefixOperationAtom _UNNAMED ->
+            sb.append(MdxEncoder.prefixOperator(name)).append(" ").append(expressionText);
+        case QuotedPropertyOperationAtom _UNNAMED ->
+            sb.append(expressionText).append(".").append(MdxEncoder.bracket(name));
 
         }
 
@@ -547,7 +563,11 @@ public class SimpleUnparser implements UnParser {
     }
 
     public CharSequence unparseAxis(Axis axis) {
-        return new StringBuilder().append(axis.named() ? axis.name().toUpperCase(Locale.ROOT) : axis.ordinal());
+        if (axis.named() && axis.name() != null
+                && (MdxEncoder.isBareIdentifier(axis.name()) || axis.name().matches("(?i)AXIS\\(\\d+\\)"))) {
+            return new StringBuilder(axis.name().toUpperCase(Locale.ROOT));
+        }
+        return new StringBuilder().append(axis.ordinal());
 
     }
 

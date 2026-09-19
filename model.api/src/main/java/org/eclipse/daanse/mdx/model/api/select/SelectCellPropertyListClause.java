@@ -16,6 +16,7 @@ package org.eclipse.daanse.mdx.model.api.select;
 import java.util.List;
 
 public interface SelectCellPropertyListClause {
+    /** Plain identifiers, the grammar has no quoted form for a cell property. */
     List<String> properties();
 
     boolean cell();

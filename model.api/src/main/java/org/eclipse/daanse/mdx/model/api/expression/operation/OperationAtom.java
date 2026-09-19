@@ -28,6 +28,10 @@ public sealed interface OperationAtom permits AmpersandQuotedPropertyOperationAt
         PrefixOperationAtom, //
         QuotedPropertyOperationAtom {
 
+    /**
+     * The decoded name of the operation: the name of a quoted property comes
+     * without brackets, {@code ]]} is one {@code ]}.
+     */
     String name();
 
 }

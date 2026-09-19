@@ -50,7 +50,7 @@
       <groupId>org.eclipse.daanse</groupId>
       <artifactId>org.eclipse.daanse.mdx.unparser.simple</artifactId>
       <version>${revision}</version>
-      <scope>runtime</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
