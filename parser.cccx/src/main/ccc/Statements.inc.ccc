@@ -357,7 +357,7 @@ CreateSetBodyClause :
   CompoundId < AS > Expression
   {
     if (peekNode() instanceof Expression expression) {
-      pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords));
+      pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords, getMaxNesting()));
     }
   }
 ;
@@ -437,7 +437,7 @@ INJECT SelectCubeClauseSubStatement :
 }
 
 SelectCubeClauseSubStatement :
-  < LPAREN >
+  < LPAREN > { checkNesting(); }
   < SELECT >
   (
     SelectQueryClause
@@ -616,7 +616,7 @@ CreateMemberBodyClause :
   Expression
     {
       if (peekNode() instanceof Expression expression) {
-        pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords));
+        pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords, getMaxNesting()));
       }
     }
     (

@@ -103,13 +103,14 @@ public class MdxParserUtil {
      * single quoted literal is a formula, a double quoted literal always stays a
      * string. Must only be used for the body of a member or a set.
      */
-    public static Expression getExpression(Expression expression, Set<String> propertyWords) {
+    public static Expression getExpression(Expression expression, Set<String> propertyWords, int maxNesting) {
         logger.debug("Processing expression: {}", expression.getClass().getSimpleName());
         if (expression instanceof org.eclipse.daanse.mdx.parser.cccx.tree.StringLiteral stringLiteral
                 && stringLiteral.getImage().startsWith("'")) {
             try {
                 MdxParser parser = new MdxParser(stringLiteral.value());
                 parser.setPropertyWords(propertyWords);
+                parser.setMaxNesting(maxNesting);
                 parser.Expression();
                 if (parser.getToken(1).getType() != org.eclipse.daanse.mdx.parser.cccx.Token.TokenType.EOF) {
                     throw new ParseException("unexpected input after the expression", parser.getToken(1), null);

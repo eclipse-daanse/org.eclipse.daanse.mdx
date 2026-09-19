@@ -126,6 +126,32 @@ private Set<String> propertyWords;
 public void setPropertyWords(Set<String> propertyWords) {
     this.propertyWords = propertyWords;
 }
+
+/**
+ * The parser is recursive, every level of nesting costs stack. The limit is
+ * counted in calls of productions: about 80 nested parentheses or calls, 1000
+ * NOT with the default. Deeper input is refused with a position instead of a
+ * StackOverflowError. A formula in quotes is parsed with the same limit.
+ */
+public static final int DEFAULT_MAX_NESTING = 1000;
+
+private int maxNesting = DEFAULT_MAX_NESTING;
+
+public int getMaxNesting() {
+    return maxNesting;
+}
+
+/** A value below 1 sets the default. */
+public void setMaxNesting(int maxNesting) {
+    this.maxNesting = maxNesting < 1 ? DEFAULT_MAX_NESTING : maxNesting;
+}
+
+private void checkNesting() {
+    if (parsingStack.size() > maxNesting) {
+        throw new ParseException("statement is nested too deep, the limit is " + maxNesting
+                + " nested productions", getToken(0), parsingStack);
+    }
+}
 }
 
 
@@ -620,6 +646,7 @@ SelectCubeClause parseSelectCubeClause :
 {
   SelectCubeClause SelectCubeClause = null;
 }
+  { checkNesting(); }
   (
     SelectCubeClause = parseSelectCubeClauseName
   |
@@ -791,7 +818,7 @@ MdxExpression parseSetMemberExpression :
   < SINGLE_QUOTED_STRING >
   {
     try {
-        return new MdxParserWrapper(MdxParserUtil.stripQuotes(getToken(0).getImage(), "'", "'", "''"), this.propertyWords).parseExpression();
+        return new MdxParserWrapper(MdxParserUtil.stripQuotes(getToken(0).getImage(), "'", "'", "''"), this.propertyWords, this.maxNesting).parseExpression();
     } catch (Exception e) {
         // keep the outer token so the exception carries a source position
         throw new ParseException("parseSetMemberExpression error " + e.getMessage(),
@@ -1019,6 +1046,7 @@ MdxExpression parseUnaliasedExpression :
   MdxExpression x;
   MdxExpression y;
 }
+  { checkNesting(); }
   x = parseTerm5
   (
     < OR > y = parseTerm5
@@ -1080,7 +1108,7 @@ MdxExpression parseTerm4 :
   {
     return x;
   }
-| < NOT > x = parseTerm4
+| < NOT > { checkNesting(); } x = parseTerm4
   {
     return new CallExpressionR(new PrefixOperationAtom("NOT"), List.of(
     x

@@ -77,6 +77,11 @@
   </build>
   <dependencies>
     <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.metatype.annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.daanse</groupId>
       <artifactId>org.eclipse.daanse.mdx.model.api</artifactId>
       <version>${revision}</version>
