@@ -101,6 +101,10 @@ final class AstDump {
         if (expression instanceof KeyObjectIdentifier k) {
             return "(key " + list(k.nameObjectIdentifiers(), AstDump::dump) + ")";
         }
+        if (expression instanceof CompoundId c && c.objectIdentifiers().size() == 1) {
+            // parser.cccx has no compound id of one part
+            return dump((MdxExpression) c.objectIdentifiers().get(0));
+        }
         if (expression instanceof CompoundId c) {
             return "(compound " + list(c.objectIdentifiers(), AstDump::dump) + ")";
         }

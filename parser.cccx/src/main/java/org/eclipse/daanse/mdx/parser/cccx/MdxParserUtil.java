@@ -25,6 +25,7 @@ import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
+import org.eclipse.daanse.mdx.parser.cccx.tree.DotName;
 import org.eclipse.daanse.mdx.parser.cccx.tree.Expression;
 
 public class MdxParserUtil {
@@ -75,6 +76,25 @@ public class MdxParserUtil {
         }
         logger.debug("Returning compound ID as-is");
         return compoundId;
+    }
+
+    /**
+     * {@code a.b.Name} in front of {@code (}: a method {@code Name} on the object
+     * {@code a.b}.
+     */
+    public static Node createMethodTarget(org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId compoundId,
+            Set<String> propertyWords) {
+        List<Node> children = new ArrayList<>(compoundId.children());
+        int last = children.size() - 1;
+
+        org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId object = new org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId();
+        children.subList(0, last - 1).forEach(object::add);
+
+        DotName dotName = new DotName();
+        dotName.add(object.size() == 1 ? object.getFirstChild() : createCall(object, propertyWords));
+        dotName.add(children.get(last - 1));
+        dotName.add(children.get(last));
+        return dotName;
     }
 
     private static List<MdxExpression> getObjectIdentifierList(List<ObjectIdentifier> list, Set<String> propertyWords) {

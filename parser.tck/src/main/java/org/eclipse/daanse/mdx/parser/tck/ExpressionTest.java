@@ -185,6 +185,18 @@ class ExpressionTest {
         }
 
         @Test
+        void testCallExpressionMethodOnCompoundId(@InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxExpression clause = mdxParserProvider.newParser("[Geo].[DE].Lag(1)", propertyWords).parseExpression();
+            assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
+            assertThat(((CallExpression) clause).operationAtom()).isEqualTo(new MethodOperationAtom("Lag"));
+            assertThat(((CallExpression) clause).expressions()).hasSize(2);
+            assertThat(((CallExpression) clause).expressions().get(0)).isInstanceOf(CompoundId.class);
+            checkCompoundId((CompoundId) ((CallExpression) clause).expressions().get(0), 2, 1, "DE");
+            assertThat(((CallExpression) clause).expressions().get(1)).isInstanceOf(NumericLiteral.class);
+        }
+
+        @Test
         void testCallExpressionMethodWithParameterArray(@InjectService MdxParserProvider mdxParserProvider)
                 throws MdxParserException {
             MdxExpression clause = mdxParserProvider.newParser("object.FunctionName([arg1, arg2])", propertyWords)
