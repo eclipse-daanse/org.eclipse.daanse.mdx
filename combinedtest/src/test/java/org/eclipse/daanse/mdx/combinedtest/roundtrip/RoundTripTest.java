@@ -44,12 +44,12 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class RoundTripTest {
 
-    private static final Set<String> PROPERTY_WORDS = UnparseParsedTest.reservedWords;
+    static final Set<String> PROPERTY_WORDS = UnparseParsedTest.reservedWords;
 
     private static final List<MdxParserProvider> PROVIDERS = List.of(new CCCMdxParserProvider(),
             new CCCXMdxParserProvider());
 
-    private static final List<String> STATEMENTS = List.of(
+    static final List<String> STATEMENTS = List.of(
             UnparseParsedTest.MDX,
             "SELECT FROM [Sales]",
             "SELECT * FROM [Sales]",

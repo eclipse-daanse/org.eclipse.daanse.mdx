@@ -271,7 +271,7 @@ INJECT BinaryExpression :
     implements Expression, org.eclipse.daanse.mdx.model.api.expression.CallExpression
 {
 	String name() {
-		return get(1).getImage();
+		return get(1).getImage().toUpperCase();
 	}
 
 	@Override
@@ -361,8 +361,10 @@ PrimaryPrefix#void :
         // then just replace it with that in the tree.
         if (peekNode().size() ==1) {
           pokeNode(peekNode().getFirstChild());
+        } else if (getToken(1).getType() == LPAREN) {
+            // a.b.Name(...): the last part is the method, the rest the object
+            pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.createMethodTarget((CompoundId) peekNode(), this.propertyWords));
         } else {
-            ObjectIdentifier oid = (ObjectIdentifier) peekNode().get(2);
             CompoundId compoundId = (CompoundId) peekNode();
             pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.createCall(compoundId, this.propertyWords ));
         }
@@ -416,10 +418,7 @@ INJECT FunctionCall :
 	public String name() {
 		if (getFirstChild() instanceof NameObjectIdentifier noi)
 			return noi.name();
-		if (getFirstChild() instanceof CompoundId ci)
-			return ci.getLastChild() instanceof NameObjectIdentifier noi ? noi.name()
-					: ci.getLastChild().toString();
-		// a method on the result of a call: f(x).Item(0)
+		// a method: a.b.Item(0), f(x).Item(0)
 		if (getFirstChild() instanceof DotName dn)
 			return dn.name();
 		return null;
@@ -437,12 +436,8 @@ INJECT FunctionCall :
 		if (operationAtom() instanceof MethodOperationAtom) {
 			List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> res = new ArrayList<>();
 			for (org.eclipse.daanse.mdx.model.api.expression.MdxExpression ex : result) {
-				if (ex instanceof CompoundId compoundId) {
-					List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> exList = compoundId.expressions();
-					if (exList.size() > 0 && exList.get(0) instanceof NameObjectIdentifier nameObjectIdentifier) {
-						res.add(nameObjectIdentifier);
-					}
-				} else if (ex == getFirstChild() && ex instanceof DotName dn) {
+				if (ex == getFirstChild() && ex instanceof DotName dn) {
+					// the object of the call
 					res.add((org.eclipse.daanse.mdx.model.api.expression.MdxExpression) dn.get(0));
 				} else {
 					res.add(ex);
