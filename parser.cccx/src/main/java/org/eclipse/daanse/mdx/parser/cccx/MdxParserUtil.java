@@ -121,12 +121,13 @@ public class MdxParserUtil {
     /**
      * The legacy form of a formula: {@code MEMBER x AS '<expression>'}. Only a
      * single quoted literal is a formula, a double quoted literal always stays a
-     * string. Must only be used for the body of a member or a set.
+     * string. An empty formula is the empty string. Must only be used for the body
+     * of a member or a set.
      */
-    public static Expression getExpression(Expression expression, Set<String> propertyWords, int maxNesting) {
+    public static Node getExpression(Expression expression, Set<String> propertyWords, int maxNesting) {
         logger.debug("Processing expression: {}", expression.getClass().getSimpleName());
         if (expression instanceof org.eclipse.daanse.mdx.parser.cccx.tree.StringLiteral stringLiteral
-                && stringLiteral.getImage().startsWith("'")) {
+                && stringLiteral.getImage().startsWith("'") && !stringLiteral.value().isEmpty()) {
             try {
                 MdxParser parser = new MdxParser(stringLiteral.value());
                 parser.setPropertyWords(propertyWords);
@@ -135,7 +136,8 @@ public class MdxParserUtil {
                 if (parser.getToken(1).getType() != org.eclipse.daanse.mdx.parser.cccx.Token.TokenType.EOF) {
                     throw new ParseException("unexpected input after the expression", parser.getToken(1), null);
                 }
-                return (Expression) parser.peekNode();
+                // a single identifier is a token and no Expression
+                return parser.peekNode();
             } catch (ParseException e) {
                 // keep the outer token so the exception carries a source position
                 throw new ParseException("formula is not an expression: " + e.getMessage(), stringLiteral, null);

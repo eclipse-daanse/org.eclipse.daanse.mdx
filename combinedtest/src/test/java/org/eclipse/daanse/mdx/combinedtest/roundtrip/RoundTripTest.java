@@ -70,6 +70,7 @@ class RoundTripTest {
             "SELECT Filter([Store].Members, [Store].CurrentMember.Name = \"a\nb\") ON 0 FROM [Sales]",
             // legacy quoted formulas
             "WITH MEMBER [Measures].[X] AS '[Measures].[A] + 1' SET [S] AS '{[a], [b]}' SELECT [S] ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS 'abc' MEMBER [Measures].[Blank] AS '' SELECT [Measures].[X] ON 0 FROM [Sales]",
             // identifiers, keys
             "SELECT [Product].[Category].&[1]&[a]]b]&c ON 0, [Time].&Q1 ON 1 FROM [Sales]",
             "SELECT [Select].[From] ON 0 FROM [Where]",
@@ -167,6 +168,18 @@ class RoundTripTest {
                 .selectWithClauses().get(0)).expression();
         assertThat(call.expressions()).hasSize(1);
         assertThat(call.expressions().get(0)).isInstanceOf(StringLiteral.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("providers")
+    void emptyFormulaIsEmptyString(String name, MdxParserProvider provider) throws MdxParserException {
+        String mdx = "WITH MEMBER [Measures].[Blank] AS '' SELECT [Measures].[Blank] ON 0 FROM [Sales]";
+
+        SelectStatement statement = (SelectStatement) provider.newParser(mdx, PROPERTY_WORDS).parseMdxStatement();
+        MdxExpression value = ((CreateMemberBodyClause) statement.selectWithClauses().get(0)).expression();
+
+        assertThat(value).isInstanceOf(StringLiteral.class);
+        assertThat(((StringLiteral) value).value()).isEmpty();
     }
 
     static Stream<Arguments> providers() {
