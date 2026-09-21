@@ -141,7 +141,7 @@ TOKEN #Keyword:
 | < COLUMNS : "COLUMNS" >
 | < COMMIT : "COMMIT" >
 | < CUBE : "CUBE" >
-| < DIMENSION : "DIMENSION" >
+| < DIMENSION : "DIMENSION" > #IdToken
 | < DRILLTHROUGH : "DRILLTHROUGH" >
 | < ELSE : "ELSE" >
 | < EMPTY : "EMPTY" >
@@ -164,7 +164,7 @@ TOKEN #Keyword:
 | < OR : "OR" >
 | < PAGES : "PAGES" >
 | < PLAN : "PLAN" >
-| < PROPERTIES : "PROPERTIES" >
+| < PROPERTIES : "PROPERTIES" > #IdToken
 | < REFRESH : "REFRESH" >
 | < UPDATE : "UPDATE" >
 | < RETURN : "RETURN" >

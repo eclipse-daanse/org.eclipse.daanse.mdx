@@ -44,8 +44,18 @@ class SameTreeTest {
             "WITH MEMBER [Measures].[X] AS '[Store].CurrentMember.CalculatedChild(\"A\").Name' "
                     + "SELECT {[Measures].[X]} ON 0 FROM [Sales]");
 
+    // DIMENSION and PROPERTIES are keywords and names
+    private static final List<String> KEYWORD_NAMES = List.of(
+            "SELECT {[Geo].[All Geo].[North].Dimension} ON 0 FROM [Sales]",
+            "SELECT {[Geo].Dimension.Members} ON 0 FROM [Sales]",
+            "SELECT {[Geo].CurrentMember.Properties(\"Caption\")} ON 0 FROM [Sales]",
+            "SELECT {Foo([Geo]).Dimension, Foo([Geo]).Properties(\"Caption\")} ON 0 FROM [Sales]",
+            "SELECT [Geo].Dimension.Members DIMENSION PROPERTIES [Geo].[Name] ON 0 FROM [Sales]",
+            "SELECT [Geo].Dimension PROPERTIES [Geo].Dimension, Properties ON 0 FROM [Sales] CELL PROPERTIES VALUE",
+            "SELECT {[Geo].[All Geo].[North].Level, [Geo].[All Geo].[North].Hierarchy} ON 0 FROM [Sales]");
+
     static Stream<String> statements() {
-        return Stream.concat(RoundTripTest.STATEMENTS.stream(), METHOD_CALLS.stream());
+        return Stream.of(RoundTripTest.STATEMENTS, METHOD_CALLS, KEYWORD_NAMES).flatMap(List::stream);
     }
 
     @ParameterizedTest
