@@ -814,6 +814,10 @@ MdxExpression parseSetMemberExpression :
 }
   < SINGLE_QUOTED_STRING >
   {
+    // an empty formula is the empty string
+    if (getToken(0).getImage().length() == 2) {
+        return new StringLiteralR("");
+    }
     try {
         return new MdxParserWrapper(MdxParserUtil.stripQuotes(getToken(0).getImage(), "'", "'", "''"), this.propertyWords, this.maxNesting).parseExpression();
     } catch (Exception e) {

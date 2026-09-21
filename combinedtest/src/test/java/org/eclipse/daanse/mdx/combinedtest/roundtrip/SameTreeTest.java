@@ -54,8 +54,21 @@ class SameTreeTest {
             "SELECT [Geo].Dimension PROPERTIES [Geo].Dimension, Properties ON 0 FROM [Sales] CELL PROPERTIES VALUE",
             "SELECT {[Geo].[All Geo].[North].Level, [Geo].[All Geo].[North].Hierarchy} ON 0 FROM [Sales]");
 
+    // a formula in single quotes, the empty one is the empty string
+    private static final List<String> QUOTED_FORMULAS = List.of(
+            "WITH MEMBER [Measures].[X] AS 'abc' SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS '[abc]' SET [S] AS 'abc' SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS '' SET [S] AS '' SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS \"\" SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS '\"it''s\"' SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS 'IIF(1 = 1, ''a'', ''b'')' SELECT {[Measures].[X]} ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[Nothing] AS NULL MEMBER [Measures].[Blank] AS ''"
+                    + " MEMBER [Measures].[Money] AS 1234.5, FORMAT_STRING = '#,##0.00'"
+                    + " SELECT {[Measures].[Nothing], [Measures].[Blank], [Measures].[Money]} ON 0 FROM [Sales]");
+
     static Stream<String> statements() {
-        return Stream.of(RoundTripTest.STATEMENTS, METHOD_CALLS, KEYWORD_NAMES).flatMap(List::stream);
+        return Stream.of(RoundTripTest.STATEMENTS, METHOD_CALLS, KEYWORD_NAMES, QUOTED_FORMULAS)
+                .flatMap(List::stream);
     }
 
     @ParameterizedTest
