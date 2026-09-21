@@ -129,13 +129,8 @@ TOKEN #Separator :
 
 
 TOKEN #Keyword:
-< ALL : "ALL" >
-| < ALLMEMBERS : "ALLMEMBERS" >
-| < ANCESTOR : "ANCESTOR" >
-| < ANCESTORS : "ANCESTORS" >
-| < AND : "AND" >
+< AND : "AND" >
 | < AS : "AS" >
-| < ASC : "ASC" >
 | < AXIS : "AXIS" >
 | < BEGIN : "BEGIN" >
 | < CASE : "CASE" >
@@ -146,7 +141,6 @@ TOKEN #Keyword:
 | < COLUMNS : "COLUMNS" >
 | < COMMIT : "COMMIT" >
 | < CUBE : "CUBE" >
-| < CURRENTCUBE : "CURRENTCUBE" >
 | < DIMENSION : "DIMENSION" >
 | < DRILLTHROUGH : "DRILLTHROUGH" >
 | < ELSE : "ELSE" >
