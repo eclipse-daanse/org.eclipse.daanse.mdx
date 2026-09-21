@@ -66,6 +66,11 @@ NameObjectIdentifier#interface :
   < AT_ID >
   |
   < QUOTED_ID >
+  |
+  // keywords that are names as well: [Geo].Dimension, x.Properties("Caption")
+  < DIMENSION >
+  |
+  < PROPERTIES >
 ;
 
 
