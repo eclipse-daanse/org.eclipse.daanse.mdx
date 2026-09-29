@@ -71,6 +71,7 @@ class RoundTripTest {
             // legacy quoted formulas
             "WITH MEMBER [Measures].[X] AS '[Measures].[A] + 1' SET [S] AS '{[a], [b]}' SELECT [S] ON 0 FROM [Sales]",
             "WITH MEMBER [Measures].[X] AS 'abc' MEMBER [Measures].[Blank] AS '' SELECT [Measures].[X] ON 0 FROM [Sales]",
+            "WITH MEMBER [Measures].[X] AS 'a' || 'b' SELECT [Measures].[X] ON 0 FROM [Sales]",
             // identifiers, keys
             "SELECT [Product].[Category].&[1]&[a]]b]&c ON 0, [Time].&Q1 ON 1 FROM [Sales]",
             "SELECT [Select].[From] ON 0 FROM [Where]",

@@ -812,6 +812,9 @@ MdxExpression parseSetMemberExpression :
 {
   MdxExpression expression;
 }
+  // the quoted text is the whole formula only when a clause boundary follows it;
+  // otherwise it merely begins an expression, e.g. 'a' || 'b'
+  SCAN < SINGLE_QUOTED_STRING > ( < COMMA > | < SELECT > | < EOF > | < CELL > | < MEMBER > | < SET > | < MEASURE > | "CALCULATED" ) =>
   < SINGLE_QUOTED_STRING >
   {
     // an empty formula is the empty string
