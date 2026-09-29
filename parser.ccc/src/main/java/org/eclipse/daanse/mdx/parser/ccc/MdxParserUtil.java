@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
+import org.eclipse.daanse.mdx.model.api.expression.KeyObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
@@ -52,11 +53,21 @@ public class MdxParserUtil {
         return s;
     }
 
+    private static String nameOf(ObjectIdentifier objectIdentifier) {
+        if (objectIdentifier instanceof NameObjectIdentifier nameObjectIdentifier) {
+            return nameObjectIdentifier.name();
+        }
+        // a key of one part: x.&[1]
+        if (objectIdentifier instanceof KeyObjectIdentifier keyObjectIdentifier
+                && keyObjectIdentifier.nameObjectIdentifiers().size() == 1) {
+            return keyObjectIdentifier.nameObjectIdentifiers().get(0).name();
+        }
+        return null;
+    }
+
     public static MdxExpression createCall(MdxExpression left, ObjectIdentifier objectIdentifier,
             List<MdxExpression> expressions, Set<String> propertyWords) {
-        final String name = objectIdentifier instanceof NameObjectIdentifier nameObjectIdentifier
-                ? nameObjectIdentifier.name()
-                : null;
+        final String name = nameOf(objectIdentifier);
         logger.debug("Creating call with name: '{}', hasLeft: {}, hasExpressions: {}, propertyWords size: {}", name,
                 left != null, expressions != null, propertyWords != null ? propertyWords.size() : 0);
 

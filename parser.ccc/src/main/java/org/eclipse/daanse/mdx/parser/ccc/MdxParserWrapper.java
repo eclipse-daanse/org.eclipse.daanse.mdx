@@ -15,6 +15,9 @@ package org.eclipse.daanse.mdx.parser.ccc;
 
 import java.util.List;
 import java.util.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -45,6 +48,15 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     private MdxParser delegate;
 
     public MdxParserWrapper(CharSequence mdx, Set<String> propertyWords) throws MdxParserException {
+        this(mdx, propertyWords, MdxParser.DEFAULT_MAX_NESTING);
+    }
+
+    /**
+     * @param maxNesting how deep a statement may be nested, counted in nested
+     *                   productions of the grammar; a value below 1 is the default
+     */
+    public MdxParserWrapper(CharSequence mdx, Set<String> propertyWords, int maxNesting)
+            throws MdxParserException {
         logger.debug("Creating MdxParserWrapper with mdx length: {}, propertyWords size: {}",
                 mdx != null ? mdx.length() : 0, propertyWords != null ? propertyWords.size() : 0);
 
@@ -58,6 +70,7 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         try {
             delegate = new MdxParser(mdx);
             delegate.setPropertyWords(propertyWords);
+            delegate.setMaxNesting(maxNesting);
             logger.debug("MdxParserWrapper created successfully");
         } catch (Exception e) {
             logger.error("Failed to create MdxParser delegate", e);
@@ -74,11 +87,14 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
             return result;
 
         } catch (ParseException pe) {
-            logger.error("Failed to parse MDX statement", pe);
+            logger.debug("Failed to parse MDX statement", pe);
             throw toMdxParserException(pe);
         } catch (Exception e) {
-            logger.error("Failed to parse MDX statement", e);
+            logger.debug("Failed to parse MDX statement", e);
             throw new MdxParserException(e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
         } finally {
             dump();
         }
@@ -103,9 +119,24 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         }
         Node root = delegate.rootNode();
         if (root != null) {
-            logger.trace("Dumping parser AST");
-            root.dump();
+            // through the logger, not to System.out: the configuration decides where it goes
+            try {
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                root.dump("", new PrintStream(buffer, false, StandardCharsets.UTF_8));
+                logger.trace("parser AST:{}{}", System.lineSeparator(), buffer.toString(StandardCharsets.UTF_8));
+            } catch (StackOverflowError e) {
+                logger.trace("parser AST is nested too deep to dump");
+            }
         }
+    }
+
+    /**
+     * Every failure of a parse is a MdxParserException, also the stack that runs
+     * out on input the nesting limit of the grammar did not stop.
+     */
+    private static MdxParserException tooDeep(StackOverflowError e) {
+        // no cause: its stack trace is as long as the stack and says nothing
+        return new MdxParserException("statement is nested too deep");
     }
 
     @Override
@@ -195,11 +226,14 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
             logger.debug("Successfully parsed " + what);
             return result;
         } catch (ParseException pe) {
-            logger.error("Failed to parse  " + what, pe);
+            logger.debug("Failed to parse  " + what, pe);
             throw toMdxParserException(pe);
         } catch (Exception e) {
-            logger.error("Failed to parse  " + what, e);
+            logger.debug("Failed to parse  " + what, e);
             throw new MdxParserException("Failed to parse " + what, e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
         } finally {
             dump();
         }

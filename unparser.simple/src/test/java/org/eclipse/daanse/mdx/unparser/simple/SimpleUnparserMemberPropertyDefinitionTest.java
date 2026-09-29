@@ -55,7 +55,7 @@ class SimpleUnparserMemberPropertyDefinitionTest {
     void test3() {
 
         MemberPropertyDefinition memberPropertyDefinition = new MemberPropertyDefinitionR(
-                new StringLiteralR("\"test\""), new NameObjectIdentifierR("name", ObjectIdentifier.Quoting.QUOTED));
+                new StringLiteralR("test"), new NameObjectIdentifierR("name", ObjectIdentifier.Quoting.QUOTED));
         assertThat(unparser.unparseMemberPropertyDefinition(memberPropertyDefinition)).asString()
                 .isEqualTo("[name] = \"test\"");
     }

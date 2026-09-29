@@ -25,6 +25,7 @@ import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
+import org.eclipse.daanse.mdx.parser.cccx.tree.DotName;
 import org.eclipse.daanse.mdx.parser.cccx.tree.Expression;
 
 public class MdxParserUtil {
@@ -77,6 +78,25 @@ public class MdxParserUtil {
         return compoundId;
     }
 
+    /**
+     * {@code a.b.Name} in front of {@code (}: a method {@code Name} on the object
+     * {@code a.b}.
+     */
+    public static Node createMethodTarget(org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId compoundId,
+            Set<String> propertyWords) {
+        List<Node> children = new ArrayList<>(compoundId.children());
+        int last = children.size() - 1;
+
+        org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId object = new org.eclipse.daanse.mdx.parser.cccx.tree.CompoundId();
+        children.subList(0, last - 1).forEach(object::add);
+
+        DotName dotName = new DotName();
+        dotName.add(object.size() == 1 ? object.getFirstChild() : createCall(object, propertyWords));
+        dotName.add(children.get(last - 1));
+        dotName.add(children.get(last));
+        return dotName;
+    }
+
     private static List<MdxExpression> getObjectIdentifierList(List<ObjectIdentifier> list, Set<String> propertyWords) {
         ObjectIdentifier last = list.getLast();
         final String name = last instanceof NameObjectIdentifier nameObjectIdentifier ? nameObjectIdentifier.name()
@@ -98,22 +118,29 @@ public class MdxParserUtil {
         });
     }
 
-    public static Expression getExpression(Expression expression, Set<String> propertyWords) {
+    /**
+     * The legacy form of a formula: {@code MEMBER x AS '<expression>'}. Only a
+     * single quoted literal is a formula, a double quoted literal always stays a
+     * string. An empty formula is the empty string. Must only be used for the body
+     * of a member or a set.
+     */
+    public static Node getExpression(Expression expression, Set<String> propertyWords, int maxNesting) {
         logger.debug("Processing expression: {}", expression.getClass().getSimpleName());
-        if (expression instanceof org.eclipse.daanse.mdx.model.api.expression.StringLiteral stringLiteral) {
-            logger.debug("Processing string literal: '{}'", stringLiteral.value());
+        if (expression instanceof org.eclipse.daanse.mdx.parser.cccx.tree.StringLiteral stringLiteral
+                && stringLiteral.getImage().startsWith("'") && !stringLiteral.value().isEmpty()) {
             try {
-                String strippedValue = stripQuotes(stringLiteral.value(), "'", "'", "''");
-                MdxParser parser = new MdxParser(strippedValue);
+                MdxParser parser = new MdxParser(stringLiteral.value());
                 parser.setPropertyWords(propertyWords);
+                parser.setMaxNesting(maxNesting);
                 parser.Expression();
-                Expression result = (Expression) parser.peekNode();
-                logger.debug("Successfully parsed string literal expression");
-                return result;
-            } catch (Exception e) {
-                logger.debug("Failed to parse string literal expression: '{}'", stringLiteral.value(), e);
-                e.printStackTrace();
-                //we should return expression as is return expression
+                if (parser.getToken(1).getType() != org.eclipse.daanse.mdx.parser.cccx.Token.TokenType.EOF) {
+                    throw new ParseException("unexpected input after the expression", parser.getToken(1), null);
+                }
+                // a single identifier is a token and no Expression
+                return parser.peekNode();
+            } catch (ParseException e) {
+                // keep the outer token so the exception carries a source position
+                throw new ParseException("formula is not an expression: " + e.getMessage(), stringLiteral, null);
             }
         }
         return expression;

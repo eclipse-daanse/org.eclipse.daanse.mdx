@@ -25,12 +25,15 @@ import org.eclipse.daanse.mdx.model.api.expression.KeyObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.NumericLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
+import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.operation.BracesOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.FunctionOperationAtom;
 import org.eclipse.daanse.mdx.model.api.select.MemberPropertyDefinition;
 import org.eclipse.daanse.mdx.parser.api.MdxParserException;
 import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.osgi.test.common.annotation.InjectService;
 
@@ -53,6 +56,16 @@ class MemberPropertyDefinitionTest {
         NameObjectIdentifier nameObjectIdentifier2 = (NameObjectIdentifier) compoundId.objectIdentifiers().get(0);
         assertThat(nameObjectIdentifier2.name()).isEqualTo("test");
         assertThat(nameObjectIdentifier2.quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "\"[a].[b]\"", "'[a].[b]'" })
+    void stringStaysString(String literal, @InjectService MdxParserProvider mdxParserProvider)
+            throws MdxParserException {
+        MemberPropertyDefinition memberPropertyDefinition = mdxParserProvider
+                .newParser("FORMAT_STRING = " + literal, propertyWords).parseMemberPropertyDefinition();
+        assertThat(memberPropertyDefinition.expression()).isInstanceOf(StringLiteral.class);
+        assertThat(((StringLiteral) memberPropertyDefinition.expression()).value()).isEqualTo("[a].[b]");
     }
 
     @Test

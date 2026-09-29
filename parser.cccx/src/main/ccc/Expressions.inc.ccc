@@ -26,6 +26,7 @@ INJECT BASE_NODE_CLASS :
 }
 
 Expression#interface :
+  { checkNesting(); }
   OrExpression
   (
     (
@@ -65,6 +66,11 @@ NameObjectIdentifier#interface :
   < AT_ID >
   |
   < QUOTED_ID >
+  |
+  // keywords that are names as well: [Geo].Dimension, x.Properties("Caption")
+  < DIMENSION >
+  |
+  < PROPERTIES >
 ;
 
 
@@ -90,6 +96,7 @@ KeyObjectIdentifier :
 INJECT CompoundId :
     import static PARSER_PACKAGE.PARSER_CLASS.stripQuotes;
     import java.util.List;
+    import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier.Quoting;
     import org.eclipse.daanse.mdx.model.api.expression.operation.AmpersandQuotedPropertyOperationAtom;
 	import org.eclipse.daanse.mdx.model.api.expression.operation.OperationAtom;
 	import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
@@ -102,13 +109,16 @@ INJECT CompoundId :
 	}
 
 	public OperationAtom operationAtom() {
-		String lastChild = getLastChild().getSource();
-		if (lastChild.startsWith("[&")) {
-			return new AmpersandQuotedPropertyOperationAtom(stripQuotes(lastChild).substring(1));
+		// names are decoded, the same way the identifier tokens decode them
+		if (getLastChild() instanceof NameObjectIdentifier noi) {
+			return noi.quoting() == Quoting.QUOTED ? new QuotedPropertyOperationAtom(noi.name())
+					: new PlainPropertyOperationAtom(noi.name());
 		}
-		char firstChar = lastChild.charAt(0);
-		return firstChar == '[' ? new QuotedPropertyOperationAtom(stripQuotes(lastChild))
-				: new PlainPropertyOperationAtom(lastChild);
+		String lastChild = getLastChild().getSource();
+		if (lastChild.startsWith("&[")) {
+			return new AmpersandQuotedPropertyOperationAtom(stripQuotes(lastChild.substring(1)));
+		}
+		return new PlainPropertyOperationAtom(lastChild.startsWith("&") ? lastChild.substring(1) : lastChild);
 	}
 
 	public List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> expressions() {
@@ -179,7 +189,7 @@ INJECT NegatedExpression :
 }
 
 NegatedExpression#(>1) :
-  <NOT> NegatedExpression
+  <NOT> { checkNesting(); } NegatedExpression
   |
   RelationalExpression
 ;
@@ -195,6 +205,8 @@ INJECT RelationalExpression :
 		Node op = get(1);
 		if (op.getType() == IS && op.nextSibling().getType() == EMPTY) {
 			return "IS EMPTY";
+		} else if (op.getType() == IS && op.nextSibling().getType() == NULL) {
+			return "IS NULL";
 		} else if (op.getType() == NOT) {
 			NodeType nextType = op.nextSibling().getType();
 			if (nextType == MATCHES)
@@ -264,7 +276,7 @@ INJECT BinaryExpression :
     implements Expression, org.eclipse.daanse.mdx.model.api.expression.CallExpression
 {
 	String name() {
-		return get(1).getImage();
+		return get(1).getImage().toUpperCase();
 	}
 
 	@Override
@@ -354,8 +366,10 @@ PrimaryPrefix#void :
         // then just replace it with that in the tree.
         if (peekNode().size() ==1) {
           pokeNode(peekNode().getFirstChild());
+        } else if (getToken(1).getType() == LPAREN) {
+            // a.b.Name(...): the last part is the method, the rest the object
+            pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.createMethodTarget((CompoundId) peekNode(), this.propertyWords));
         } else {
-            ObjectIdentifier oid = (ObjectIdentifier) peekNode().get(2);
             CompoundId compoundId = (CompoundId) peekNode();
             pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.createCall(compoundId, this.propertyWords ));
         }
@@ -369,10 +383,15 @@ INJECT DotName :
 	import org.eclipse.daanse.mdx.model.api.expression.operation.QuotedPropertyOperationAtom;
     implements PrimaryExpression, org.eclipse.daanse.mdx.model.api.expression.CallExpression
 {
-    private String name() {
-        return get(2) instanceof
-        NameObjectIdentifier noi
-        ? noi.name() : null;
+    String name() {
+        if (get(2) instanceof NameObjectIdentifier noi) {
+            return noi.name();
+        }
+        // a key of one part: x.&[1]
+        if (get(2) instanceof KeyObjectIdentifier koi && koi.nameObjectIdentifiers().size() == 1) {
+            return koi.nameObjectIdentifiers().get(0).name();
+        }
+        return null;
     }
 
 	@Override
@@ -383,6 +402,12 @@ INJECT DotName :
             case QUOTED -> new QuotedPropertyOperationAtom(name());
             default -> new AmpersandQuotedPropertyOperationAtom(name());
         };
+	}
+
+	// the name is the operation, only the left side is an argument
+	@Override
+	public java.util.List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> expressions() {
+		return java.util.List.of((org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(0));
 	}
 }
 
@@ -398,8 +423,9 @@ INJECT FunctionCall :
 	public String name() {
 		if (getFirstChild() instanceof NameObjectIdentifier noi)
 			return noi.name();
-		if (getFirstChild() instanceof CompoundId ci)
-			return ci.getLastChild().toString();
+		// a method: a.b.Item(0), f(x).Item(0)
+		if (getFirstChild() instanceof DotName dn)
+			return dn.name();
 		return null;
 	}
 
@@ -415,11 +441,9 @@ INJECT FunctionCall :
 		if (operationAtom() instanceof MethodOperationAtom) {
 			List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> res = new ArrayList<>();
 			for (org.eclipse.daanse.mdx.model.api.expression.MdxExpression ex : result) {
-				if (ex instanceof CompoundId compoundId) {
-					List<org.eclipse.daanse.mdx.model.api.expression.MdxExpression> exList = compoundId.expressions();
-					if (exList.size() > 0 && exList.get(0) instanceof NameObjectIdentifier nameObjectIdentifier) {
-						res.add(nameObjectIdentifier);
-					}
+				if (ex == getFirstChild() && ex instanceof DotName dn) {
+					// the object of the call
+					res.add((org.eclipse.daanse.mdx.model.api.expression.MdxExpression) dn.get(0));
 				} else {
 					res.add(ex);
 				}
@@ -584,14 +608,10 @@ INJECT MemberPropertyDefinition :
    }
 }
 
+// the value of a property is never a quoted formula, a string stays a string
 MemberPropertyDefinition :
   ObjectIdentifier
   < EQ >
   Expression
-  {
-    if (peekNode() instanceof Expression expression) {
-      pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords));
-    }
-  }
 ;
 

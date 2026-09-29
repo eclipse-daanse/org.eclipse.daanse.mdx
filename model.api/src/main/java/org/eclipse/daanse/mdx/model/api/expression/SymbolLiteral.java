@@ -15,5 +15,10 @@ package org.eclipse.daanse.mdx.model.api.expression;
 
 public non-sealed interface SymbolLiteral extends Literal {
 
+    /**
+     * The decoded name, without brackets, {@code ]]} is one {@code ]}.
+     *
+     * @see StringLiteral#value()
+     */
     String value();
 }

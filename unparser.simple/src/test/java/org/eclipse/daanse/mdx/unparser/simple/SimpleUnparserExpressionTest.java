@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.unparser.simple;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -138,7 +139,7 @@ class SimpleUnparserExpressionTest {
             CompoundId compoundId = new CompoundIdR(List.of(objectIdentifier));
             CallExpression callExpression = new CallExpressionR(new QuotedPropertyOperationAtom("PROPERTY"),
                     List.of(compoundId));
-            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("object.&PROPERTY");
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("object.[PROPERTY]");
         }
 
         @Test
@@ -147,7 +148,7 @@ class SimpleUnparserExpressionTest {
             CompoundId compoundId = new CompoundIdR(List.of(objectIdentifier));
             CallExpression callExpression = new CallExpressionR(new AmpersandQuotedPropertyOperationAtom("PROPERTY"),
                     List.of(compoundId));
-            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("object.[&PROPERTY]");
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("object.&[PROPERTY]");
         }
 
         @Test
@@ -389,14 +390,16 @@ class SimpleUnparserExpressionTest {
 
         @Test
         void testStringLiteral1() {
-            StringLiteral stringLiteral = new StringLiteralR("\"String'Literal\"");
+            // the model holds the decoded value, the unparser adds the delimiters
+            StringLiteral stringLiteral = new StringLiteralR("String'Literal");
             assertThat(unparser.unparseExpression(stringLiteral)).asString().isEqualTo("\"String'Literal\"");
         }
 
         @Test
         void testStringLiteral2() {
-            StringLiteral stringLiteral = new StringLiteralR("'StringLiteral'");
-            assertThat(unparser.unparseExpression(stringLiteral)).asString().isEqualTo("'StringLiteral'");
+            StringLiteral stringLiteral = new StringLiteralR("say \"hi\", then [go]");
+            assertThat(unparser.unparseExpression(stringLiteral)).asString()
+                    .isEqualTo("\"say \"\"hi\"\", then [go]\"");
         }
 
         @Test
@@ -405,7 +408,35 @@ class SimpleUnparserExpressionTest {
             SymbolLiteral symbolLiteral = new SymbolLiteralR("DATE");
             CallExpression callExpression = new CallExpressionR(new CastOperationAtom(),
                     List.of(stringLiteral, symbolLiteral));
-            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CAST(the_date AS DATE)");
+            assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CAST(\"the_date\" AS DATE)");
+        }
+
+        @Test
+        void testCastKeepsCommas() {
+            CallExpression iif = new CallExpressionR(new FunctionOperationAtom("IIF"),
+                    List.of(new StringLiteralR("a,b"), new NumericLiteralR(BigDecimal.ONE), new NullLiteralR()));
+            CallExpression callExpression = new CallExpressionR(new CastOperationAtom(),
+                    List.of(iif, new SymbolLiteralR("my type")));
+            assertThat(unparser.unparseExpression(callExpression)).asString()
+                    .isEqualTo("CAST(IIF(\"a,b\",1,NULL) AS [my type])");
+        }
+
+        @Test
+        void testNamesAreEncodedOrRejected() {
+            CompoundId object = new CompoundIdR(List.of(new NameObjectIdentifierR("object", Quoting.UNQUOTED)));
+
+            assertThat(unparser.unparseExpression(
+                    new CallExpressionR(new QuotedPropertyOperationAtom("a]. [b"), List.of(object)))).asString()
+                    .isEqualTo("object.[a]]. [b]");
+            assertThat(unparser.unparseExpression(new NameObjectIdentifierR("a b", Quoting.UNQUOTED))).asString()
+                    .isEqualTo("[a b]");
+
+            assertThatIllegalArgumentException().isThrownBy(() -> unparser.unparseExpression(
+                    new CallExpressionR(new FunctionOperationAtom("f(1), g"), List.of())));
+            assertThatIllegalArgumentException().isThrownBy(() -> unparser.unparseExpression(
+                    new CallExpressionR(new PlainPropertyOperationAtom("p, [x]"), List.of(object))));
+            assertThatIllegalArgumentException().isThrownBy(() -> unparser.unparseExpression(
+                    new CallExpressionR(new InfixOperationAtom(", 1 +"), List.of(object, object))));
         }
 
     }

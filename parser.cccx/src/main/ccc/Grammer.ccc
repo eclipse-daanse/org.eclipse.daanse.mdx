@@ -46,6 +46,32 @@ INJECT PARSER_CLASS :
        this.propertyWords = propertyWords;
    }
 
+   /**
+    * The parser is recursive, every level of nesting costs stack. The limit is
+    * counted in calls of productions: about 100 nested parentheses or calls, 1000
+    * NOT with the default. Deeper input is refused with a position instead of a
+    * StackOverflowError. A formula in quotes is parsed with the same limit.
+    */
+   public static final int DEFAULT_MAX_NESTING = 1000;
+
+   private int maxNesting = DEFAULT_MAX_NESTING;
+
+   public int getMaxNesting() {
+       return maxNesting;
+   }
+
+   /** A value below 1 sets the default. */
+   public void setMaxNesting(int maxNesting) {
+       this.maxNesting = maxNesting < 1 ? DEFAULT_MAX_NESTING : maxNesting;
+   }
+
+   private void checkNesting() {
+       if (parsingStack.size() > maxNesting) {
+           throw new ParseException("statement is nested too deep, the limit is " + maxNesting
+                   + " nested productions", getToken(0), parsingStack);
+       }
+   }
+
    public static void main(String[] args) {
       if (args.length==0) System.err.println("No input file specified.");
       else for (int i=0; i< args.length; i++) {
