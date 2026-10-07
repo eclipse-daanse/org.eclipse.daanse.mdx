@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 /** Both parsers accept the same keywords as a name. */
 class KeywordAsNameTest {
 
-    private static final Set<String> NAMES = Set.of("DIMENSION", "PROPERTIES");
+    private static final Set<String> NAMES = Set.of("AXIS", "DIMENSION", "PROPERTIES");
 
     private static final List<String> FORMS = List.of(
             "SELECT {[Geo].[DE].%s} ON 0 FROM [Sales]",

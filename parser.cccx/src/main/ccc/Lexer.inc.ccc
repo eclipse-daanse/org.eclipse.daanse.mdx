@@ -131,7 +131,7 @@ TOKEN #Separator :
 TOKEN #Keyword:
 < AND : "AND" >
 | < AS : "AS" >
-| < AXIS : "AXIS" >
+| < AXIS : "AXIS" > #IdToken
 | < BEGIN : "BEGIN" >
 | < CASE : "CASE" >
 | < CALCULATION : "CALCULATION" >

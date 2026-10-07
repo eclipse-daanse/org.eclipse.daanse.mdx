@@ -371,16 +371,18 @@ INJECT SelectCellPropertyListClause :
    }
 
    public java.util.List<String> properties() {
-       return childrenOfType(ID).stream().map(n->n.getImage()).collect(Collectors.toList());
+       return childrenOfType(IdToken.class).stream()
+           .filter(t -> t.getType() == ID || t.getType() == QUOTED_ID)
+           .map(IdToken::name).collect(Collectors.toList());
    }
 }
 
 SelectCellPropertyListClause SelectCellPropertyListClause# :
   (< CELL >)?
   < PROPERTIES >
-  <ID>
+  (<ID> | <QUOTED_ID>)
   (
-    < COMMA > <ID>
+    < COMMA > (<ID> | <QUOTED_ID>)
   )*
   {
     return CURRENT_NODE;
