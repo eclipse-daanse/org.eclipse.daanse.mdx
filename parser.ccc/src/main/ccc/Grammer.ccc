@@ -749,18 +749,30 @@ SelectCellPropertyListClause parseSelectCellPropertyListClause :
       cell=true;
      }
   )?
-   < PROPERTIES > <ID>
+   < PROPERTIES > property = parseCellPropertyName
     {
-      cellProperties.add(getToken(0).getImage());
+      cellProperties.add(property);
     }
   (
-    < COMMA > <ID>
+    < COMMA > property = parseCellPropertyName
     {
-      cellProperties.add(getToken(0).getImage());
+      cellProperties.add(property);
     }
   )*
   {
     return new SelectCellPropertyListClauseR(cellProperties,cell);
+  }
+;
+
+// a cell property is a plain or a bracketed name, e.g. VALUE or [FORMATTED_VALUE]
+String parseCellPropertyName :
+  < ID >
+  {
+    return getToken(0).getImage();
+  }
+| < QUOTED_ID >
+  {
+    return MdxParserUtil.stripQuotes(getToken(0).getImage(), "[", "]", "]]");
   }
 ;
 
@@ -1013,6 +1025,7 @@ String parseKeyword :
   (
     < DIMENSION >
   | < PROPERTIES >
+  | < AXIS >
   )
   {
     return getToken(0).getImage();
@@ -1187,7 +1200,7 @@ MdxExpression parseTerm3 :
     }
   | < IS > < EMPTY >
     {
-      x = new CallExpressionR(new PostfixOperationAtom("IS NULL"), List.of(x));
+      x = new CallExpressionR(new PostfixOperationAtom("IS EMPTY"), List.of(x));
     }
   | < MATCHES > y = parseTerm2
     {
