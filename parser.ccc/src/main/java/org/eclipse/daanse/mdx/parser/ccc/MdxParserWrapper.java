@@ -104,10 +104,28 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     /** ParseException may carry no token (message-only constructor). */
     private static MdxParserException toMdxParserException(ParseException pe) {
         if (pe.getToken() != null) {
-            return new MdxParserException(pe.getMessage(), pe, pe.getToken().getBeginLine(),
-                    pe.getToken().getBeginColumn());
+            return atToken(pe);
         }
         return new MdxParserException(pe.getMessage(), pe);
+    }
+
+    /**
+     * At the end of the input the EOF token lies past the text: column 1, and with a final EOL added a line the
+     * text does not have. The statement ends right after its last token, so that is where it is reported.
+     */
+    private static MdxParserException atToken(ParseException pe) {
+        Node.TerminalNode token = pe.getToken();
+        String message = pe.getMessage();
+        int line = token.getBeginLine();
+        int column = token.getBeginColumn();
+        Token last = token instanceof Token eof && eof.getType() == Token.TokenType.EOF ? eof.getPrevious() : null;
+        if (last != null) {
+            line = last.getEndLine();
+            column = last.getEndColumn() + 1;
+            message = message.replace("around) " + token.getLocation(),
+                    "around) " + token.getInputSource() + ":" + line + ":" + column);
+        }
+        return new MdxParserException(message, pe, line, column);
     }
 
     private void dump() {
