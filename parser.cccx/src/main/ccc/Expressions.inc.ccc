@@ -17,6 +17,17 @@
 
 INJECT PARSER_CLASS :
   import org.eclipse.daanse.mdx.model.api.expression.CallExpression.Type;
+{
+  /**
+   * Top is true while the operand of a {@code Cast(<operand> AS <type>)} is parsed: there the AS belongs to the
+   * cast, not to an inline set alias. Every nested expression (function arguments, parentheses, braces) pushes false.
+   */
+  private final java.util.ArrayDeque<Boolean> aliasBlocked = new java.util.ArrayDeque<>();
+
+  private boolean aliasAllowed() {
+    return !Boolean.TRUE.equals(aliasBlocked.peek());
+  }
+}
 
 INJECT BASE_NODE_CLASS :
 {
@@ -25,15 +36,12 @@ INJECT BASE_NODE_CLASS :
   }
 }
 
+// The inline set alias "<set> AS <name>" is not parsed here but as a postfix of the operand (AliasedPrimary): it
+// binds more tightly than * + - : and the expression goes on after the name, as in SSAS.
 Expression#interface :
-  { checkNesting(); }
+  { checkNesting(); aliasBlocked.push(false); }
   OrExpression
-  (
-    (
-      < AS >
-      ObjectIdentifier
-    )#BinaryExpression(+1)
-  )*
+  { aliasBlocked.pop(); }
 ;
 
 INJECT interface ObjectIdentifier:
@@ -322,7 +330,19 @@ UnaryExpression#(>1) :
       // This is only in Pentaho, it seems.
       <EXISTING>
     )?
+    AliasedPrimary
+;
+
+// inline set alias: names this operand, binds more tightly than * + - : (SSAS); not inside a Cast operand
+AliasedPrimary#void :
     PrimaryExpression
+    (
+      SCAN 1 {aliasAllowed()} =>
+      (
+        < AS >
+        ObjectIdentifier
+      )#BinaryExpression(+1)
+    )*
 ;
 
 INJECT PrimaryExpression : extends Expression
@@ -490,7 +510,9 @@ INJECT CastExpression :
 CastExpression :
     <CAST>
     <LPAREN>
+    { aliasBlocked.push(true); }
     OrExpression
+    { aliasBlocked.pop(); }
     <AS>
     NameObjectIdentifier
     <RPAREN>

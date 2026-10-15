@@ -122,6 +122,12 @@ import org.eclipse.daanse.mdx.model.api.expression.operation.PostfixOperationAto
 import org.eclipse.daanse.mdx.model.api.expression.operation.PrefixOperationAtom;
 import org.eclipse.daanse.mdx.parser.ccc.MdxParserWrapper;
 {
+/**
+ * True while the operand of a {@code Cast(<operand> AS <type>)} is parsed: there the AS belongs to the cast, not to
+ * an inline set alias. Every nested expression (function arguments, parentheses, braces) clears it again.
+ */
+private boolean inCastOperand;
+
 private Set<String> propertyWords;
 public void setPropertyWords(Set<String> propertyWords) {
     this.propertyWords = propertyWords;
@@ -848,23 +854,17 @@ MdxExpression parseSetMemberExpression :
   }
 ;
 
+// The inline set alias "<set> AS <name>" is not parsed here but as a postfix of the operand (parsePrimary): it binds
+// more tightly than * + - : and the expression goes on after the name, as in SSAS.
 MdxExpression parseExpression :
 {
   MdxExpression expression;
-  ObjectIdentifier objectIdentifier;
+  boolean savedInCastOperand = inCastOperand;
 }
+  { inCastOperand = false; }
   expression = parseUnaliasedExpression
-  (
-    < AS > objectIdentifier = parseIdentifier
-    {
-      CompoundId compundId = new CompoundIdR(List.of(objectIdentifier));
-      expression = new CallExpressionR(new InfixOperationAtom("AS"), List.of(
-      expression, compundId
-      )
-      );
-    }
-  )*
   {
+    inCastOperand = savedInCastOperand;
     return expression;
   }
 ;
@@ -1340,10 +1340,22 @@ MdxExpression parseFactor :
 MdxExpression parsePrimary :
 {
   MdxExpression expression;
+  ObjectIdentifier objectIdentifier;
 }
   expression = parseAtom
   (
     < DOT > expression = objectIdentifierOrFuncall(expression)
+  )*
+  (
+    // inline set alias: names this operand, binds more tightly than * + - : (SSAS); not inside a Cast operand
+    SCAN 1 {!inCastOperand} =>
+    < AS > objectIdentifier = parseIdentifier
+    {
+      expression = new CallExpressionR(new InfixOperationAtom("AS"), List.of(
+      expression, new CompoundIdR(List.of(objectIdentifier))
+      )
+      );
+    }
   )*
   {
     return expression;
@@ -1388,6 +1400,7 @@ NumericLiteral parseNumericLiteral :
 
 MdxExpression parseAtom :
 {
+  boolean savedInCastOperand;
   MdxExpression expression;
   NameObjectIdentifier nameObjectIdentifier;
   List < MdxExpression > expressions;
@@ -1408,7 +1421,10 @@ MdxExpression parseAtom :
   {
     return NullLiteralR.SINGLETON;
   }
-| < CAST > < LPAREN > expression = parseUnaliasedExpression
+| < CAST > < LPAREN >
+  { savedInCastOperand = inCastOperand; inCastOperand = true; }
+  expression = parseUnaliasedExpression
+  { inCastOperand = savedInCastOperand; }
   < AS > nameObjectIdentifier = parseNameObjectIdentifier < RPAREN >
   {
     return new CallExpressionR(new CastOperationAtom(), List.of(
