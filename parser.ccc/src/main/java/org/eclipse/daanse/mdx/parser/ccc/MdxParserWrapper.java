@@ -15,9 +15,6 @@ package org.eclipse.daanse.mdx.parser.ccc;
 
 import java.util.List;
 import java.util.Optional;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -99,8 +96,6 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         } catch (StackOverflowError e) {
             logger.debug("Failed to parse, nested too deep");
             throw tooDeep(e);
-        } finally {
-            dump();
         }
 
     }
@@ -118,11 +113,11 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
      * text does not have. The statement ends right after its last token, so that is where it is reported.
      */
     private static MdxParserException atToken(ParseException pe) {
-        Node.TerminalNode token = pe.getToken();
+        Token token = pe.getToken();
         String message = pe.getMessage();
         int line = token.getBeginLine();
         int column = token.getBeginColumn();
-        Token last = token instanceof Token eof && eof.getType() == Token.TokenType.EOF ? eof.getPrevious() : null;
+        Token last = token.getType() == Token.TokenType.EOF ? token.getPrevious() : null;
         if (last != null) {
             line = last.getEndLine();
             column = last.getEndColumn() + 1;
@@ -130,26 +125,6 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
                     "around) " + token.getInputSource() + ":" + line + ":" + column);
         }
         return new MdxParserException(message, pe, line, column);
-    }
-
-    private void dump() {
-        // Node.dump() writes the whole tree to System.out, so it has to be gated on the
-        // level like the message above it. Ungated, every parse printed its AST: ~177k
-        // lines per TCK test group, unreachable by any logging configuration.
-        if (!logger.isTraceEnabled()) {
-            return;
-        }
-        Node root = delegate.rootNode();
-        if (root != null) {
-            // through the logger, not to System.out: the configuration decides where it goes
-            try {
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                root.dump("", new PrintStream(buffer, false, StandardCharsets.UTF_8));
-                logger.trace("parser AST:{}{}", System.lineSeparator(), buffer.toString(StandardCharsets.UTF_8));
-            } catch (StackOverflowError e) {
-                logger.trace("parser AST is nested too deep to dump");
-            }
-        }
     }
 
     /**
@@ -276,8 +251,6 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         } catch (StackOverflowError e) {
             logger.debug("Failed to parse, nested too deep");
             throw tooDeep(e);
-        } finally {
-            dump();
         }
     }
 }
