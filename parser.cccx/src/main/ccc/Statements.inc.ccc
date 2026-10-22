@@ -40,6 +40,32 @@
 // <explainStatement> ::=
 //     EXPLAIN PLAN FOR ( <selectStatement> | <drillthroughStatement> )
 //
+// <createMemberStatement>, <createSetStatement>, <dropMemberStatement>, <dropSetStatement>: see below
+//
+INJECT PARSER_CLASS :
+{
+  /**
+   * The i-th token ahead is the unbracketed word, e.g. CREATE or SESSION. The words of the session statements are
+   * matched this way, not as tokens, so that they stay usable as names everywhere else.
+   */
+  private boolean isWord(int i, String word) {
+    Token token = getToken(i);
+    return token.getType() == ID && token.getImage().equalsIgnoreCase(word);
+  }
+
+  /**
+   * A CREATE statement is a CREATE MEMBER when the first token after CREATE that is not a word is MEMBER;
+   * otherwise it is taken for a CREATE SET, which then reports a wrong word where it is.
+   */
+  private boolean isCreateMember() {
+    int i = 2;
+    while (getToken(i).getType() == ID) {
+      i++;
+    }
+    return getToken(i).getType() == MEMBER;
+  }
+}
+
 MdxStatement MdxStatement#interface :
   (
     SelectStatement
@@ -53,6 +79,18 @@ MdxStatement MdxStatement#interface :
     UpdateStatement
     |
     TransactionStatement
+    |
+    SCAN 0 {isWord(1, "CREATE") && isCreateMember()} =>
+    CreateMemberStatement
+    |
+    SCAN 0 {isWord(1, "CREATE")} =>
+    CreateSetStatement
+    |
+    SCAN 0 {isWord(1, "DROP") && getToken(2).getType() == SET} =>
+    DropSetStatement
+    |
+    SCAN 0 {isWord(1, "DROP")} =>
+    DropMemberStatement
   )
   {MdxStatement result = (MdxStatement) peekNode();}
   < EOF >
@@ -178,6 +216,146 @@ TransactionStatement :
   )
   // TRAN is the abbreviation every client that sends the long form also accepts.
   ( < TRANSACTION > | < TRAN > )
+;
+
+// Session statements, as SSAS takes them in an XMLA Execute. The first segment of the name is always the cube.
+//
+// <createMemberStatement> ::= CREATE [SESSION] [CALCULATED] MEMBER <cubeReference> . <memberName>
+//                               AS <expression> [ , <identifier> = <expression> ]...
+// <createSetStatement>    ::= CREATE [SESSION] [STATIC | DYNAMIC] [HIDDEN] SET <cubeReference> . <setName>
+//                               AS <expression> [ , <identifier> = <expression> ]...
+// <dropMemberStatement>   ::= DROP MEMBER <qualifiedName> [ , <qualifiedName> ]...
+// <dropSetStatement>      ::= DROP SET <qualifiedName> [ , <qualifiedName> ]...
+// <qualifiedName>         ::= <cubeReference> . <compoundId>
+// <cubeReference>         ::= <identifier> | CURRENTCUBE
+//
+// CREATE, DROP, SESSION, CALCULATED, STATIC, DYNAMIC, HIDDEN and CURRENTCUBE are words, not tokens: they stay names
+// elsewhere. The cube is the NameObjectIdentifier right after MEMBER or SET.
+
+INJECT CreateMemberStatement :
+   import static org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.cubeReference;
+   import static org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.hasWordBefore;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+{
+   public boolean session() {
+      return hasWordBefore(this, MEMBER, "SESSION");
+   }
+
+   public boolean calculated() {
+      return hasWordBefore(this, MEMBER, "CALCULATED");
+   }
+
+   public org.eclipse.daanse.mdx.model.api.CubeReference cube() {
+      return cubeReference((NameObjectIdentifier) firstChildOfType(MEMBER).nextSibling());
+   }
+
+   public org.eclipse.daanse.mdx.model.api.select.CreateMemberBodyClause body() {
+      return firstChildOfType(CreateMemberBodyClause.class);
+   }
+}
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-create-member?view=sql-server-ver16
+CreateMemberStatement :
+  SCAN {isWord(1, "CREATE")} => < ID >
+  ( SCAN {isWord(1, "SESSION")} => < ID > )?
+  ( SCAN {isWord(1, "CALCULATED")} => < ID > )?
+  < MEMBER > NameObjectIdentifier < DOT > CreateMemberBodyClause
+;
+
+INJECT CreateSetStatement :
+   import java.util.Optional;
+   import org.eclipse.daanse.mdx.model.api.SetEvaluation;
+   import static org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.cubeReference;
+   import static org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.hasWordBefore;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.CreateSetStatement;
+{
+   public boolean session() {
+      return hasWordBefore(this, SET, "SESSION");
+   }
+
+   public Optional<SetEvaluation> evaluation() {
+      if (hasWordBefore(this, SET, "STATIC")) return Optional.of(SetEvaluation.STATIC);
+      if (hasWordBefore(this, SET, "DYNAMIC")) return Optional.of(SetEvaluation.DYNAMIC);
+      return Optional.empty();
+   }
+
+   public boolean hidden() {
+      return hasWordBefore(this, SET, "HIDDEN");
+   }
+
+   public org.eclipse.daanse.mdx.model.api.CubeReference cube() {
+      return cubeReference((NameObjectIdentifier) firstChildOfType(SET).nextSibling());
+   }
+
+   public org.eclipse.daanse.mdx.model.api.select.CreateSetBodyClause body() {
+      return firstChildOfType(CreateSetBodyClause.class);
+   }
+}
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-create-set?view=sql-server-ver16
+CreateSetStatement :
+  SCAN {isWord(1, "CREATE")} => < ID >
+  ( SCAN {isWord(1, "SESSION")} => < ID > )?
+  (
+    SCAN {isWord(1, "STATIC")} => < ID >
+  |
+    SCAN {isWord(1, "DYNAMIC")} => < ID >
+  )?
+  ( SCAN {isWord(1, "HIDDEN")} => < ID > )?
+  < SET > NameObjectIdentifier < DOT > CreateSetBodyClause
+;
+
+INJECT DropMemberStatement :
+   import java.util.List;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+{
+   public List<QualifiedName> names() {
+      return childrenOfType(QualifiedName.class);
+   }
+}
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-drop-member?view=sql-server-ver16
+DropMemberStatement :
+  SCAN {isWord(1, "DROP")} => < ID > < MEMBER >
+  QualifiedName
+  (
+    < COMMA > QualifiedName
+  )*
+;
+
+INJECT DropSetStatement :
+   import java.util.List;
+   implements MdxStatement, org.eclipse.daanse.mdx.model.api.DropSetStatement;
+{
+   public List<QualifiedName> names() {
+      return childrenOfType(QualifiedName.class);
+   }
+}
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-drop-set?view=sql-server-ver16
+DropSetStatement :
+  SCAN {isWord(1, "DROP")} => < ID > < SET >
+  QualifiedName
+  (
+    < COMMA > QualifiedName
+  )*
+;
+
+INJECT QualifiedName :
+   import static org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.cubeReference;
+   implements org.eclipse.daanse.mdx.model.api.QualifiedName;
+{
+   public org.eclipse.daanse.mdx.model.api.CubeReference cube() {
+      return cubeReference((NameObjectIdentifier) getFirstChild());
+   }
+
+   public org.eclipse.daanse.mdx.model.api.expression.CompoundId compoundId() {
+      return (org.eclipse.daanse.mdx.model.api.expression.CompoundId) get(2);
+   }
+}
+
+QualifiedName :
+  NameObjectIdentifier < DOT > CompoundId
 ;
 
 INJECT UpdateStatement :
@@ -351,6 +529,10 @@ INJECT CreateSetBodyClause :
    public org.eclipse.daanse.mdx.model.api.expression.MdxExpression expression() {
       return (org.eclipse.daanse.mdx.model.api.expression.MdxExpression) get(2);
    }
+
+   public java.util.List<MemberPropertyDefinition> memberPropertyDefinitions() {
+      return childrenOfType(MemberPropertyDefinition.class);
+   }
 }
 
 CreateSetBodyClause :
@@ -360,6 +542,9 @@ CreateSetBodyClause :
       pokeNode(org.eclipse.daanse.mdx.parser.cccx.MdxParserUtil.getExpression(expression, this.propertyWords, getMaxNesting()));
     }
   }
+  (
+    < COMMA > MemberPropertyDefinition
+  )*
 ;
 
 INJECT SelectCellPropertyListClause :
@@ -558,7 +743,7 @@ MeasureBodyClause :
 SelectWithClause#interface :
   <CELL> <CALCULATION> CreateCellCalculationBodyClause
   |
-  ("CALCULATED")? < MEMBER > CreateMemberBodyClause
+  ( SCAN {isWord(1, "CALCULATED")} => < ID > )? < MEMBER > CreateMemberBodyClause
   |
   < SET > CreateSetBodyClause
   |

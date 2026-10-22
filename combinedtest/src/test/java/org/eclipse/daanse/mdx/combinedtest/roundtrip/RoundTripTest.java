@@ -88,7 +88,25 @@ class RoundTripTest {
             "EXPLAIN PLAN FOR SELECT [a] ON 0 FROM [Sales]",
             "REFRESH CUBE [Sa]]les]",
             "UPDATE CUBE [Sales] SET ([a], [b]) = 1 USE_EQUAL_ALLOCATION, [c] = \"x, [d] = 2\" USE_WEIGHTED_ALLOCATION BY [w]",
-            "BEGIN TRANSACTION", "COMMIT TRANSACTION", "ROLLBACK TRANSACTION");
+            "BEGIN TRANSACTION", "COMMIT TRANSACTION", "ROLLBACK TRANSACTION",
+            // session statements, as SSAS took them (Adventure Works)
+            "CREATE MEMBER [Adventure Works].[Measures].[Twice] AS [Measures].[Internet Sales Amount] * 2, FORMAT_STRING = 'Currency', VISIBLE = 1",
+            "CREATE SESSION CALCULATED MEMBER [Adventure Works].[Product].[Category].[All Products].[Bikes And Clothing] AS [Product].[Category].&[1] + [Product].[Category].&[3]",
+            "CREATE MEMBER [Adventure Works].[Measures].[Quoted] AS '[Measures].[Internet Sales Amount] / 2'",
+            "CREATE SESSION SET [Adventure Works].[Probe Set] AS {[Product].[Category].&[1], [Product].[Category].&[3]}",
+            "CREATE DYNAMIC SET [Adventure Works].[Two Best] AS TopCount([Product].[Category].[Category].Members, 2, [Measures].[Internet Sales Amount]), CAPTION = 'Two Best', DISPLAY_FOLDER = 'Probe'",
+            "CREATE STATIC SET [Adventure Works].[Static] AS Filter([Product].[Category].[Category].Members, [Measures].[Internet Sales Amount] > 0)",
+            "CREATE HIDDEN SET [Adventure Works].[Hidden] AS {[Product].[Category].&[1]}",
+            "CREATE SET CURRENTCUBE.[Current] AS {[Product].[Category].&[4]}",
+            "CREATE SET [CURRENTCUBE].[Named] AS {}",
+            "create session static hidden set Sales.S as 'a', caption = \"x, VISIBLE = 0\"",
+            "CREATE MEMBER [Measures].[No Cube] AS 2",
+            "DROP MEMBER [Adventure Works].[Measures].[Twice]",
+            "DROP SET [Adventure Works].[Ordered], [Adventure Works].[Hidden]",
+            "DROP MEMBER [Adventure Works].[Measures].[Count], CURRENTCUBE.[Measures].[Invisible]",
+            "WITH SET [S] AS {[Product].[Category].&[1]}, CAPTION = 'c' SELECT [S] ON 0 FROM [Adventure Works]",
+            "WITH MEMBER [Measures].Static AS 1 SELECT {[Measures].Static} ON 0 FROM [Adventure Works]",
+            "WITH CALCULATED MEMBER [Measures].Calculated AS 1 SELECT {Calculated, Session, CurrentCube, Create, Drop} ON 0 FROM [Sales]");
 
     static Stream<Arguments> cases() {
         List<Arguments> arguments = new ArrayList<>();

@@ -45,12 +45,19 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
+import org.eclipse.daanse.mdx.model.api.CubeReference;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
+import org.eclipse.daanse.mdx.model.api.QualifiedName;
 import org.eclipse.daanse.mdx.model.api.ReturnItem;
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
+import org.eclipse.daanse.mdx.model.api.SetEvaluation;
 import org.eclipse.daanse.mdx.model.api.TransactionKind;
 import org.eclipse.daanse.mdx.model.api.TransactionStatement;
 import org.eclipse.daanse.mdx.model.api.UpdateStatement;
@@ -81,7 +88,12 @@ import org.eclipse.daanse.mdx.model.api.select.SelectCubeClause;
 import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseName;
 import org.eclipse.daanse.mdx.model.api.select.SelectCubeClauseSubStatement;
 import org.eclipse.daanse.mdx.model.api.select.SelectWithClause;
+import org.eclipse.daanse.mdx.model.record.CreateMemberStatementR;
+import org.eclipse.daanse.mdx.model.record.CreateSetStatementR;
 import org.eclipse.daanse.mdx.model.record.DrillthroughStatementR;
+import org.eclipse.daanse.mdx.model.record.DropMemberStatementR;
+import org.eclipse.daanse.mdx.model.record.DropSetStatementR;
+import org.eclipse.daanse.mdx.model.record.QualifiedNameR;
 import org.eclipse.daanse.mdx.model.record.ExplainStatementR;
 import org.eclipse.daanse.mdx.model.record.ReturnItemR;
 import org.eclipse.daanse.mdx.model.record.SelectStatementR;
@@ -127,6 +139,41 @@ import org.eclipse.daanse.mdx.parser.ccc.MdxParserWrapper;
  * an inline set alias. Every nested expression (function arguments, parentheses, braces) clears it again.
  */
 private boolean inCastOperand;
+
+/**
+ * The i-th token ahead is the unbracketed word, e.g. CREATE or SESSION. The words of the session statements are
+ * matched this way, not as tokens, so that they stay usable as names everywhere else.
+ */
+private boolean isWord(int i, String word) {
+    Token token = getToken(i);
+    return token.getType() == ID && token.getImage().equalsIgnoreCase(word);
+}
+
+/**
+ * A CREATE statement is a CREATE MEMBER when the first token after CREATE that is not a word is MEMBER;
+ * otherwise it is taken for a CREATE SET, which then reports a wrong word where it is.
+ */
+private boolean isCreateMember() {
+    int i = 2;
+    while (getToken(i).getType() == ID) {
+        i++;
+    }
+    TokenType type = getToken(i).getType();
+    return type == MEMBER;
+}
+
+/**
+ * A single-quoted string after AS is the whole formula only when a clause boundary follows it; otherwise it merely
+ * begins an expression, e.g. 'a' || 'b'.
+ */
+private boolean isQuotedFormula() {
+    if (getToken(1).getType() != SINGLE_QUOTED_STRING) {
+        return false;
+    }
+    TokenType type = getToken(2).getType();
+    return type == COMMA || type == SELECT || type == EOF || type == CELL || type == MEMBER || type == SET
+            || type == MEASURE || isWord(2, "CALCULATED");
+}
 
 private Set<String> propertyWords;
 public void setPropertyWords(Set<String> propertyWords) {
@@ -460,6 +507,8 @@ TOKEN :
 // <explainStatement> ::=
 //     EXPLAIN PLAN FOR ( <selectStatement> | <drillthroughStatement> )
 //
+// <createMemberStatement>, <createSetStatement>, <dropMemberStatement>, <dropSetStatement>: see below
+//
 MdxStatement parseMdxStatement :
 {
   MdxStatement mdxStatement = null;
@@ -476,6 +525,18 @@ MdxStatement parseMdxStatement :
     mdxStatement = parseUpdateStatement
     |
     mdxStatement = parseTransactionStatement
+    |
+    SCAN 0 {isWord(1, "CREATE") && isCreateMember()} =>
+    mdxStatement = parseCreateMemberStatement
+    |
+    SCAN 0 {isWord(1, "CREATE")} =>
+    mdxStatement = parseCreateSetStatement
+    |
+    SCAN 0 {isWord(1, "DROP") && getToken(2).getType() == SET} =>
+    mdxStatement = parseDropSetStatement
+    |
+    SCAN 0 {isWord(1, "DROP")} =>
+    mdxStatement = parseDropMemberStatement
 )
   < EOF >
   {
@@ -589,7 +650,7 @@ SelectWithClause parseSelectWithClause :
   SelectWithClause selectWithClause = null;
 }
   ( <CELL> <CALCULATION> selectWithClause = parseCreateCellCalculationBodyClause
-  | ("CALCULATED")? < MEMBER > selectWithClause = parseCreateMemberBodyClause
+  | ( SCAN {isWord(1, "CALCULATED")} => < ID > )? < MEMBER > selectWithClause = parseCreateMemberBodyClause
   | < SET > selectWithClause = parseCreateSetBodyClause
   | <MEASURE> selectWithClause = parseMeasureBodyClause
   )
@@ -830,9 +891,7 @@ MdxExpression parseSetMemberExpression :
 {
   MdxExpression expression;
 }
-  // the quoted text is the whole formula only when a clause boundary follows it;
-  // otherwise it merely begins an expression, e.g. 'a' || 'b'
-  SCAN < SINGLE_QUOTED_STRING > ( < COMMA > | < SELECT > | < EOF > | < CELL > | < MEMBER > | < SET > | < MEASURE > | "CALCULATED" ) =>
+  SCAN 0 {isQuotedFormula()} =>
   < SINGLE_QUOTED_STRING >
   {
     // an empty formula is the empty string
@@ -1541,13 +1600,21 @@ CreateSetBodyClause parseCreateSetBodyClause :
 {
  CompoundId compoundId = null;
  MdxExpression expression = null;
- //List<MemberPropertyDefinition> memberPropertyDefinitions = new LinkedList<>();
- //MemberPropertyDefinition memberPropertyDefinition = null;
+ List<MemberPropertyDefinition> memberPropertyDefinitions = new LinkedList<>();
+ MemberPropertyDefinition memberPropertyDefinition = null;
 }
 
   compoundId = parseCompoundId < AS >  expression = parseSetMemberExpression
+
+  (
+    < COMMA > memberPropertyDefinition = parseMemberPropertyDefinition
+    {
+      memberPropertyDefinitions.add(memberPropertyDefinition);
+    }
+  )*
+
   {
-    return new CreateSetBodyClauseR(compoundId,expression);
+    return new CreateSetBodyClauseR(compoundId,expression,memberPropertyDefinitions);
   }
 ;
 
@@ -1581,6 +1648,136 @@ RefreshStatement parseRefreshStatement :
 {
     return new RefreshStatementR(cubeName);
 }
+;
+
+// Session statements, as SSAS takes them in an XMLA Execute. The first segment of the name is always the cube.
+//
+// <createMemberStatement> ::= CREATE [SESSION] [CALCULATED] MEMBER <cubeReference> . <memberName>
+//                               AS <expression> [ , <identifier> = <expression> ]...
+// <createSetStatement>    ::= CREATE [SESSION] [STATIC | DYNAMIC] [HIDDEN] SET <cubeReference> . <setName>
+//                               AS <expression> [ , <identifier> = <expression> ]...
+// <dropMemberStatement>   ::= DROP MEMBER <qualifiedName> [ , <qualifiedName> ]...
+// <dropSetStatement>      ::= DROP SET <qualifiedName> [ , <qualifiedName> ]...
+// <qualifiedName>         ::= <cubeReference> . <compoundId>
+// <cubeReference>         ::= <identifier> | CURRENTCUBE
+//
+// CREATE, DROP, SESSION, CALCULATED, STATIC, DYNAMIC, HIDDEN and CURRENTCUBE are words, not tokens: they stay names elsewhere.
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-create-member?view=sql-server-ver16
+CreateMemberStatement parseCreateMemberStatement :
+{
+  boolean session = false;
+  boolean calculated = false;
+  CubeReference cube;
+  CreateMemberBodyClause body;
+}
+  SCAN {isWord(1, "CREATE")} => < ID >
+  (
+    SCAN {isWord(1, "SESSION")} => < ID > { session = true; }
+  )?
+  (
+    SCAN {isWord(1, "CALCULATED")} => < ID > { calculated = true; }
+  )?
+  < MEMBER > cube = parseCubeReference < DOT > body = parseCreateMemberBodyClause
+  {
+    return new CreateMemberStatementR(session, calculated, cube, body);
+  }
+;
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-create-set?view=sql-server-ver16
+CreateSetStatement parseCreateSetStatement :
+{
+  boolean session = false;
+  Optional<SetEvaluation> evaluation = Optional.empty();
+  boolean hidden = false;
+  CubeReference cube;
+  CreateSetBodyClause body;
+}
+  SCAN {isWord(1, "CREATE")} => < ID >
+  (
+    SCAN {isWord(1, "SESSION")} => < ID > { session = true; }
+  )?
+  (
+    SCAN {isWord(1, "STATIC")} => < ID > { evaluation = Optional.of(SetEvaluation.STATIC); }
+  |
+    SCAN {isWord(1, "DYNAMIC")} => < ID > { evaluation = Optional.of(SetEvaluation.DYNAMIC); }
+  )?
+  (
+    SCAN {isWord(1, "HIDDEN")} => < ID > { hidden = true; }
+  )?
+  < SET > cube = parseCubeReference < DOT > body = parseCreateSetBodyClause
+  {
+    return new CreateSetStatementR(session, evaluation, hidden, cube, body);
+  }
+;
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-drop-member?view=sql-server-ver16
+DropMemberStatement parseDropMemberStatement :
+{
+  List<QualifiedName> names;
+}
+  SCAN {isWord(1, "DROP")} => < ID > < MEMBER > names = parseQualifiedNames
+  {
+    return new DropMemberStatementR(names);
+  }
+;
+
+// https://learn.microsoft.com/en-us/sql/mdx/mdx-data-definition-drop-set?view=sql-server-ver16
+DropSetStatement parseDropSetStatement :
+{
+  List<QualifiedName> names;
+}
+  SCAN {isWord(1, "DROP")} => < ID > < SET > names = parseQualifiedNames
+  {
+    return new DropSetStatementR(names);
+  }
+;
+
+List<QualifiedName> parseQualifiedNames :
+{
+  List<QualifiedName> names = new LinkedList<>();
+  QualifiedName name;
+}
+  name = parseQualifiedName
+  {
+    names.add(name);
+  }
+  (
+    < COMMA > name = parseQualifiedName
+    {
+      names.add(name);
+    }
+  )*
+  {
+    return names;
+  }
+;
+
+QualifiedName parseQualifiedName :
+{
+  CubeReference cube;
+  CompoundId compoundId;
+}
+  cube = parseCubeReference < DOT > compoundId = parseCompoundId
+  {
+    return new QualifiedNameR(cube, compoundId);
+  }
+;
+
+// CURRENTCUBE unbracketed; [CURRENTCUBE] is a cube of that name
+CubeReference parseCubeReference :
+{
+  NameObjectIdentifier name;
+}
+  SCAN {isWord(1, "CURRENTCUBE")} => < ID >
+  {
+    return new CubeReference.Current();
+  }
+|
+  name = parseNameObjectIdentifier
+  {
+    return new CubeReference.Named(name);
+  }
 ;
 
 TransactionStatement parseTransactionStatement :

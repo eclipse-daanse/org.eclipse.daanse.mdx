@@ -14,6 +14,7 @@
 package org.eclipse.daanse.mdx.model.api;
 
 public sealed interface MdxStatement permits SelectStatement, DrillthroughStatement, ExplainStatement,
-        RefreshStatement, UpdateStatement, TransactionStatement {
+        RefreshStatement, UpdateStatement, TransactionStatement,
+        CreateMemberStatement, CreateSetStatement, DropMemberStatement, DropSetStatement {
 
 }

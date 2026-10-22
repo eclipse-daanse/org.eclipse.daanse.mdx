@@ -20,6 +20,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.eclipse.daanse.mdx.model.api.CubeReference;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
@@ -145,6 +146,29 @@ public class MdxParserUtil {
         }
         return expression;
 
+    }
+
+    /**
+     * The cube of a session statement: unbracketed CURRENTCUBE is the current cube, [CURRENTCUBE] a cube of that name.
+     */
+    public static CubeReference cubeReference(NameObjectIdentifier name) {
+        if (name.quoting() == ObjectIdentifier.Quoting.UNQUOTED && name.name().equalsIgnoreCase("CURRENTCUBE")) {
+            return new CubeReference.Current();
+        }
+        return new CubeReference.Named(name);
+    }
+
+    /** A child of the statement before the token of type {@code stop} is the unbracketed word. */
+    public static boolean hasWordBefore(Node statement, Node.NodeType stop, String word) {
+        for (Node child : statement.children()) {
+            if (child.getType() == stop) {
+                return false;
+            }
+            if (child.getType() == Token.TokenType.ID && child.getImage().equalsIgnoreCase(word)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

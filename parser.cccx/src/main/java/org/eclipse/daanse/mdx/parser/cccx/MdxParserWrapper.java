@@ -23,7 +23,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
@@ -393,6 +397,70 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
         try {
             delegate.UpdateStatement();
             return (UpdateStatement) delegate.peekNode();
+
+        } catch (Exception e) {
+            throw wrap(e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
+        } finally {
+            dump();
+        }
+    }
+
+    @Override
+    public CreateMemberStatement parseCreateMemberStatement() throws MdxParserException {
+        try {
+            delegate.CreateMemberStatement();
+            return (CreateMemberStatement) delegate.peekNode();
+
+        } catch (Exception e) {
+            throw wrap(e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
+        } finally {
+            dump();
+        }
+    }
+
+    @Override
+    public CreateSetStatement parseCreateSetStatement() throws MdxParserException {
+        try {
+            delegate.CreateSetStatement();
+            return (CreateSetStatement) delegate.peekNode();
+
+        } catch (Exception e) {
+            throw wrap(e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
+        } finally {
+            dump();
+        }
+    }
+
+    @Override
+    public DropMemberStatement parseDropMemberStatement() throws MdxParserException {
+        try {
+            delegate.DropMemberStatement();
+            return (DropMemberStatement) delegate.peekNode();
+
+        } catch (Exception e) {
+            throw wrap(e);
+        } catch (StackOverflowError e) {
+            logger.debug("Failed to parse, nested too deep");
+            throw tooDeep(e);
+        } finally {
+            dump();
+        }
+    }
+
+    @Override
+    public DropSetStatement parseDropSetStatement() throws MdxParserException {
+        try {
+            delegate.DropSetStatement();
+            return (DropSetStatement) delegate.peekNode();
 
         } catch (Exception e) {
             throw wrap(e);

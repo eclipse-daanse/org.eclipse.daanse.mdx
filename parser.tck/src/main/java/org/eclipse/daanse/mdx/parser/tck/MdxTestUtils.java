@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import org.eclipse.daanse.mdx.model.api.CubeReference;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.select.Axis;
@@ -49,5 +50,13 @@ public class MdxTestUtils {
         assertThat(axis).isNotNull();
         assertThat(axis.ordinal()).isEqualTo(ordinal);
         assertThat(axis.named()).isEqualTo(named);
+    }
+
+    /** The cube of a session statement is the cube of that name, as written in brackets. */
+    public static void checkCube(CubeReference cube, String name) {
+        assertThat(cube).isInstanceOf(CubeReference.Named.class);
+        NameObjectIdentifier nameObjectIdentifier = ((CubeReference.Named) cube).name();
+        assertThat(nameObjectIdentifier.name()).isEqualTo(name);
+        assertThat(nameObjectIdentifier.quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
     }
 }

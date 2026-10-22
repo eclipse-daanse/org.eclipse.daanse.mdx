@@ -13,10 +13,24 @@
 */
 package org.eclipse.daanse.mdx.model.record.select;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.select.CreateSetBodyClause;
+import org.eclipse.daanse.mdx.model.api.select.MemberPropertyDefinition;
 
-public record CreateSetBodyClauseR(CompoundId compoundId, MdxExpression expression) implements CreateSetBodyClause {
+public record CreateSetBodyClauseR(CompoundId compoundId, MdxExpression expression,
+        List<MemberPropertyDefinition> memberPropertyDefinitions) implements CreateSetBodyClause {
+
+    public CreateSetBodyClauseR {
+        Objects.requireNonNull(memberPropertyDefinitions, "memberPropertyDefinitions must not be null");
+        memberPropertyDefinitions = List.copyOf(memberPropertyDefinitions);
+    }
+
+    public CreateSetBodyClauseR(CompoundId compoundId, MdxExpression expression) {
+        this(compoundId, expression, List.of());
+    }
 
 }
