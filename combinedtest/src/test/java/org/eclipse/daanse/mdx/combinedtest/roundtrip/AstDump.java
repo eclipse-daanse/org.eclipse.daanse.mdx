@@ -18,9 +18,15 @@ import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
+import org.eclipse.daanse.mdx.model.api.CubeReference;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
+import org.eclipse.daanse.mdx.model.api.QualifiedName;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
 import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.TransactionStatement;
@@ -80,6 +86,13 @@ final class AstDump {
         case UpdateStatement s -> "(update " + dump(s.cubeName()) + " " + list(s.updateClauses(), AstDump::update)
                 + ")";
         case TransactionStatement s -> "(transaction " + s.kind() + ")";
+        case CreateMemberStatement s -> "(create session=" + s.session() + " calculated=" + s.calculated() + " "
+                + cube(s.cube()) + " " + with(s.body()) + ")";
+        case CreateSetStatement s -> "(create session=" + s.session() + " evaluation="
+                + s.evaluation().map(Enum::name).orElse("-") + " hidden=" + s.hidden() + " " + cube(s.cube()) + " "
+                + with(s.body()) + ")";
+        case DropMemberStatement s -> "(drop member " + list(s.names(), AstDump::name) + ")";
+        case DropSetStatement s -> "(drop set " + list(s.names(), AstDump::name) + ")";
         };
     }
 
@@ -127,7 +140,8 @@ final class AstDump {
         return switch (clause) {
         case CreateMemberBodyClause m -> "(member " + dump(m.compoundId()) + " " + dump(m.expression()) + " props="
                 + list(m.memberPropertyDefinitions(), AstDump::property) + ")";
-        case CreateSetBodyClause s -> "(set " + dump(s.compoundId()) + " " + dump(s.expression()) + ")";
+        case CreateSetBodyClause s -> "(set " + dump(s.compoundId()) + " " + dump(s.expression()) + " props="
+                + list(s.memberPropertyDefinitions(), AstDump::property) + ")";
         default -> "(" + clause.getClass().getSimpleName() + ")";
         };
     }
@@ -161,6 +175,17 @@ final class AstDump {
                 + cube(s.selectCubeClause()) + " where="
                 + s.selectSlicerAxisClause().map(w -> dump(w.expression())).orElse("-") + ")";
         };
+    }
+
+    private static String cube(CubeReference cube) {
+        return switch (cube) {
+        case CubeReference.Current _ -> "(currentcube)";
+        case CubeReference.Named n -> "(cube " + dump(n.name()) + ")";
+        };
+    }
+
+    private static String name(QualifiedName name) {
+        return "(name " + cube(name.cube()) + " " + dump(name.compoundId()) + ")";
     }
 
     private static String update(UpdateClause clause) {

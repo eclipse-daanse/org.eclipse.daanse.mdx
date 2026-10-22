@@ -24,6 +24,10 @@
       <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//QuotingEnum/QUOTED"/>
       <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//QuotingEnum/KEY"/>
     </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="mdx.ecore#//SetEvaluation">
+      <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//SetEvaluation/STATIC"/>
+      <genEnumLiterals ecoreEnumLiteral="mdx.ecore#//SetEvaluation/DYNAMIC"/>
+    </genEnums>
     <genClasses image="false" ecoreClass="mdx.ecore#//MdxStatement"/>
     <genClasses ecoreClass="mdx.ecore#//SelectStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//SelectStatement/selectWithClauses"/>
@@ -44,6 +48,34 @@
     <genClasses ecoreClass="mdx.ecore#//RefreshStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//RefreshStatement/cubeName"/>
     </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CreateMemberStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//CreateMemberStatement/session"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//CreateMemberStatement/calculated"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateMemberStatement/cube"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateMemberStatement/body"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CreateSetStatement">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//CreateSetStatement/session"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//CreateSetStatement/evaluation"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute mdx.ecore#//CreateSetStatement/hidden"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetStatement/cube"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetStatement/body"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//DropMemberStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DropMemberStatement/names"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//DropSetStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//DropSetStatement/names"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="mdx.ecore#//CubeReference"/>
+    <genClasses ecoreClass="mdx.ecore#//NamedCubeReference">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//NamedCubeReference/name"/>
+    </genClasses>
+    <genClasses ecoreClass="mdx.ecore#//CurrentCubeReference"/>
+    <genClasses ecoreClass="mdx.ecore#//QualifiedName">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//QualifiedName/cube"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//QualifiedName/compoundId"/>
+    </genClasses>
     <genClasses ecoreClass="mdx.ecore#//UpdateStatement">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//UpdateStatement/cubeName"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//UpdateStatement/updateClauses"/>
@@ -60,6 +92,7 @@
     <genClasses ecoreClass="mdx.ecore#//CreateSetBodyClause">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetBodyClause/compoundId"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetBodyClause/expression"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference mdx.ecore#//CreateSetBodyClause/memberPropertyDefinitions"/>
     </genClasses>
     <genClasses ecoreClass="mdx.ecore#//CreateCellCalculationBodyClause"/>
     <genClasses ecoreClass="mdx.ecore#//MeasureBodyClause"/>

@@ -16,7 +16,11 @@ package org.eclipse.daanse.mdx.parser.api;
 import java.util.List;
 import java.util.Optional;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
@@ -69,4 +73,12 @@ public interface MdxParser {
     Optional<SelectSlicerAxisClause> parseSelectSlicerAxisClause() throws MdxParserException;
 
     UpdateStatement parseUpdateStatement() throws MdxParserException;
+
+    CreateMemberStatement parseCreateMemberStatement() throws MdxParserException;
+
+    CreateSetStatement parseCreateSetStatement() throws MdxParserException;
+
+    DropMemberStatement parseDropMemberStatement() throws MdxParserException;
+
+    DropSetStatement parseDropSetStatement() throws MdxParserException;
 }

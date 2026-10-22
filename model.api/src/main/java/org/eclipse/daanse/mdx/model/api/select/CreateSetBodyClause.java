@@ -13,6 +13,8 @@
 */
 package org.eclipse.daanse.mdx.model.api.select;
 
+import java.util.List;
+
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 
@@ -21,5 +23,14 @@ public non-sealed interface CreateSetBodyClause extends SelectWithClause {
     CompoundId compoundId();
 
     MdxExpression expression();
+
+    /**
+     * The properties after the expression ({@code CAPTION}, {@code DISPLAY_FOLDER},
+     * ...). A default, so implementations written before sets had properties keep
+     * compiling.
+     */
+    default List<? extends MemberPropertyDefinition> memberPropertyDefinitions() {
+        return List.of();
+    }
 
 }

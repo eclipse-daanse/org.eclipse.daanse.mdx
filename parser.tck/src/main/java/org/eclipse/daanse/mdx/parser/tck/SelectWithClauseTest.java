@@ -17,11 +17,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.daanse.mdx.parser.tck.CubeTest.propertyWords;
 import static org.eclipse.daanse.mdx.parser.tck.MdxTestUtils.checkNameObjectIdentifiers;
 
+import java.util.List;
+
+import org.eclipse.daanse.mdx.model.api.MdxStatement;
+import org.eclipse.daanse.mdx.model.api.SelectStatement;
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.KeyObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.ObjectIdentifier;
+import org.eclipse.daanse.mdx.model.api.expression.StringLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.operation.BracesOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.FunctionOperationAtom;
 import org.eclipse.daanse.mdx.model.api.expression.operation.PlainPropertyOperationAtom;
@@ -34,6 +39,8 @@ import org.eclipse.daanse.mdx.parser.api.MdxParserProvider;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.osgi.test.common.annotation.InjectService;
 
@@ -181,6 +188,52 @@ class SelectWithClauseTest {
             assertThat(nameObjectIdentifier1.quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
             assertThat(nameObjectIdentifier2.name()).isEqualTo("Calculate Internet Sales Amount");
             assertThat(nameObjectIdentifier2.quoting()).isEqualTo(ObjectIdentifier.Quoting.QUOTED);
+        }
+    }
+
+    @Nested
+    class SessionStatementWordsTest {
+
+        @Test
+        void withSetKeepsItsProperty(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
+            MdxStatement statement = mdxParserProvider.newParser(
+                    "WITH SET [S] AS {[Product].[Category].&[1]}, CAPTION = 'c' SELECT [S] ON 0 FROM [Adventure Works]",
+                    propertyWords).parseMdxStatement();
+            assertThat(statement).isInstanceOf(SelectStatement.class);
+            List<? extends SelectWithClause> withClauses = ((SelectStatement) statement).selectWithClauses();
+            assertThat(withClauses).hasSize(1);
+            assertThat(withClauses.get(0)).isInstanceOf(CreateSetBodyClause.class);
+            CreateSetBodyClause set = (CreateSetBodyClause) withClauses.get(0);
+            assertThat(set.memberPropertyDefinitions()).hasSize(1);
+            assertThat(((NameObjectIdentifier) set.memberPropertyDefinitions().get(0).objectIdentifier()).name())
+                    .isEqualTo("CAPTION");
+            assertThat(((StringLiteral) set.memberPropertyDefinitions().get(0).expression()).value()).isEqualTo("c");
+        }
+
+        @Test
+        void calculatedMemberWithQuotedFormulas(@InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxStatement statement = mdxParserProvider.newParser("""
+                    WITH CALCULATED MEMBER [Measures].x AS 'a' calculated member [Measures].y AS 'b'
+                    SELECT {} ON 0 FROM [C]""", propertyWords).parseMdxStatement();
+            assertThat(((SelectStatement) statement).selectWithClauses()).hasSize(2)
+                    .allMatch(CreateMemberBodyClause.class::isInstance);
+        }
+
+        /** The words of CREATE and DROP are names everywhere else, unbracketed. */
+        @ParameterizedTest
+        @ValueSource(strings = { "Static", "Dynamic", "Session", "Hidden", "Global", "Calculated", "CurrentCube",
+                "Create", "Drop", "Caption", "Display_Folder", "Visible" })
+        void wordsStayNames(String word, @InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxStatement statement = mdxParserProvider.newParser("WITH MEMBER [Measures]." + word
+                    + " AS 1 SELECT {[Measures]." + word + ", " + word + "} ON 0 FROM [Adventure Works]",
+                    propertyWords).parseMdxStatement();
+            assertThat(statement).isInstanceOf(SelectStatement.class);
+            CreateMemberBodyClause member = (CreateMemberBodyClause) ((SelectStatement) statement)
+                    .selectWithClauses().get(0);
+            checkNameObjectIdentifiers(member.compoundId().objectIdentifiers(), 1, word,
+                    ObjectIdentifier.Quoting.UNQUOTED);
         }
     }
 }

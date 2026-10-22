@@ -57,6 +57,77 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="cubeName" lowerBound="1"
         eType="#//NameObjectIdentifier" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CreateMemberStatement" eSuperTypes="#//MdxStatement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a CREATE MEMBER statement"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="session" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="calculated" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cube" lowerBound="1"
+        eType="#//CubeReference" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" lowerBound="1"
+        eType="#//CreateMemberBodyClause" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CreateSetStatement" eSuperTypes="#//MdxStatement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a CREATE SET statement"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="session" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="evaluation" eType="#//SetEvaluation"
+        unsettable="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="hidden" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cube" lowerBound="1"
+        eType="#//CubeReference" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="body" lowerBound="1"
+        eType="#//CreateSetBodyClause" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DropMemberStatement" eSuperTypes="#//MdxStatement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a DROP MEMBER statement"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="names" lowerBound="1"
+        upperBound="-1" eType="#//QualifiedName" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DropSetStatement" eSuperTypes="#//MdxStatement">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a DROP SET statement"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="names" lowerBound="1"
+        upperBound="-1" eType="#//QualifiedName" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SetEvaluation">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Enumeration for the evaluation of a CREATE SET: STATIC or DYNAMIC"/>
+    </eAnnotations>
+    <eLiterals name="STATIC"/>
+    <eLiterals name="DYNAMIC" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CubeReference" abstract="true" interface="true">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Base interface for the cube a session statement names"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NamedCubeReference" eSuperTypes="#//CubeReference">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a cube by name"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="name" lowerBound="1"
+        eType="#//NameObjectIdentifier" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CurrentCubeReference" eSuperTypes="#//CubeReference">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents CURRENTCUBE"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="QualifiedName">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Represents a member or set name with its cube"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="cube" lowerBound="1"
+        eType="#//CubeReference" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="compoundId" lowerBound="1"
+        eType="#//CompoundId" containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="UpdateStatement" eSuperTypes="#//MdxStatement">
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
       <details key="documentation" value="Represents an UPDATE statement"/>
@@ -97,6 +168,8 @@
         eType="#//CompoundId" containment="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="expression" lowerBound="1"
         eType="#//MdxExpression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="memberPropertyDefinitions"
+        upperBound="-1" eType="#//MemberPropertyDefinition" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CreateCellCalculationBodyClause" eSuperTypes="#//SelectWithClause">
     <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">

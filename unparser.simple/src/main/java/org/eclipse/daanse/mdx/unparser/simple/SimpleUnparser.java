@@ -18,9 +18,15 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
+import org.eclipse.daanse.mdx.model.api.CubeReference;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
+import org.eclipse.daanse.mdx.model.api.QualifiedName;
 import org.eclipse.daanse.mdx.model.api.TransactionStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
 import org.eclipse.daanse.mdx.model.api.ReturnItem;
@@ -429,16 +435,21 @@ public class SimpleUnparser implements UnParser {
     }
 
     public CharSequence unparseCreateMemberBodyClause(CreateMemberBodyClause clause) {
+        return new StringBuilder("MEMBER ")
+                .append(unparseBody(clause.compoundId(), clause.expression(), clause.memberPropertyDefinitions()));
+    }
+
+    /** Name AS expression and the properties, as WITH and CREATE share them. */
+    private StringBuilder unparseBody(CompoundId compoundId, MdxExpression expression,
+            List<? extends MemberPropertyDefinition> memberPropertyDefinitions) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("MEMBER ");
+        sb.append(unparseCompoundId(compoundId)).append(" AS ").append(unparseExpression(expression));
 
-        sb.append(unparseCompoundId(clause.compoundId())).append(" AS ").append(unparseExpression(clause.expression()));
-
-        if (!clause.memberPropertyDefinitions().isEmpty()) {
+        if (!memberPropertyDefinitions.isEmpty()) {
             sb.append(" ");
 
-            String ret = clause.memberPropertyDefinitions().stream().map(this::unparseMemberPropertyDefinition)
+            String ret = memberPropertyDefinitions.stream().map(this::unparseMemberPropertyDefinition)
                     .collect(Collectors.joining("\r\n,", ",\r\n ", ""));
             sb.append(ret);
         }
@@ -457,13 +468,59 @@ public class SimpleUnparser implements UnParser {
     }
 
     public CharSequence unparseCreateSetBodyClause(CreateSetBodyClause clause) {
+        return new StringBuilder("SET ")
+                .append(unparseBody(clause.compoundId(), clause.expression(), clause.memberPropertyDefinitions()));
+    }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("SET ");
-        sb.append(unparseCompoundId(clause.compoundId())).append(" AS ").append(unparseExpression(clause.expression()));
+    public CharSequence unparseCreateMemberStatement(CreateMemberStatement statement) {
+        StringBuilder sb = new StringBuilder("CREATE ");
+        if (statement.session()) {
+            sb.append("SESSION ");
+        }
+        if (statement.calculated()) {
+            sb.append("CALCULATED ");
+        }
+        CreateMemberBodyClause body = statement.body();
+        return sb.append("MEMBER ").append(unparseCubeReference(statement.cube())).append('.')
+                .append(unparseBody(body.compoundId(), body.expression(), body.memberPropertyDefinitions()));
+    }
 
-        return sb;
+    public CharSequence unparseCreateSetStatement(CreateSetStatement statement) {
+        StringBuilder sb = new StringBuilder("CREATE ");
+        if (statement.session()) {
+            sb.append("SESSION ");
+        }
+        statement.evaluation().ifPresent(e -> sb.append(e.name()).append(' '));
+        if (statement.hidden()) {
+            sb.append("HIDDEN ");
+        }
+        CreateSetBodyClause body = statement.body();
+        return sb.append("SET ").append(unparseCubeReference(statement.cube())).append('.')
+                .append(unparseBody(body.compoundId(), body.expression(), body.memberPropertyDefinitions()));
+    }
 
+    public CharSequence unparseDropMemberStatement(DropMemberStatement statement) {
+        return new StringBuilder("DROP MEMBER ").append(unparseQualifiedNames(statement.names()));
+    }
+
+    public CharSequence unparseDropSetStatement(DropSetStatement statement) {
+        return new StringBuilder("DROP SET ").append(unparseQualifiedNames(statement.names()));
+    }
+
+    private String unparseQualifiedNames(List<? extends QualifiedName> names) {
+        return names.stream()
+                .map(n -> unparseCubeReference(n.cube()) + "." + unparseCompoundId(n.compoundId()))
+                .collect(Collectors.joining(", "));
+    }
+
+    private CharSequence unparseCubeReference(CubeReference cube) {
+        return switch (cube) {
+            case CubeReference.Current c -> "CURRENTCUBE";
+            // unbracketed, a cube named CurrentCube would read back as the current cube
+            case CubeReference.Named n when n.name().name().equalsIgnoreCase("CURRENTCUBE") ->
+                MdxEncoder.bracket(n.name().name());
+            case CubeReference.Named n -> unparseNameObjectIdentifier(n.name());
+        };
     }
 
     public CharSequence unparseMeasureBodyClause(MeasureBodyClause mbc) {
@@ -564,6 +621,10 @@ public class SimpleUnparser implements UnParser {
             case RefreshStatement s      -> unparseRefreshStatement(s);
             case UpdateStatement s       -> unparseUpdateStatement(s);
             case TransactionStatement s  -> unparseTransactionStatement(s);
+            case CreateMemberStatement s -> unparseCreateMemberStatement(s);
+            case CreateSetStatement s    -> unparseCreateSetStatement(s);
+            case DropMemberStatement s   -> unparseDropMemberStatement(s);
+            case DropSetStatement s      -> unparseDropSetStatement(s);
         };
     }
 

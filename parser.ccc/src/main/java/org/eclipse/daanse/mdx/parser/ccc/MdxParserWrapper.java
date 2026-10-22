@@ -23,7 +23,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.eclipse.daanse.mdx.model.api.CreateMemberStatement;
+import org.eclipse.daanse.mdx.model.api.CreateSetStatement;
 import org.eclipse.daanse.mdx.model.api.DrillthroughStatement;
+import org.eclipse.daanse.mdx.model.api.DropMemberStatement;
+import org.eclipse.daanse.mdx.model.api.DropSetStatement;
 import org.eclipse.daanse.mdx.model.api.ExplainStatement;
 import org.eclipse.daanse.mdx.model.api.MdxStatement;
 import org.eclipse.daanse.mdx.model.api.RefreshStatement;
@@ -235,6 +239,26 @@ public class MdxParserWrapper implements org.eclipse.daanse.mdx.parser.api.MdxPa
     @Override
     public UpdateStatement parseUpdateStatement() throws MdxParserException {
         return parse("Update Statement", delegate::parseUpdateStatement);
+    }
+
+    @Override
+    public CreateMemberStatement parseCreateMemberStatement() throws MdxParserException {
+        return parse("Create Member Statement", delegate::parseCreateMemberStatement);
+    }
+
+    @Override
+    public CreateSetStatement parseCreateSetStatement() throws MdxParserException {
+        return parse("Create Set Statement", delegate::parseCreateSetStatement);
+    }
+
+    @Override
+    public DropMemberStatement parseDropMemberStatement() throws MdxParserException {
+        return parse("Drop Member Statement", delegate::parseDropMemberStatement);
+    }
+
+    @Override
+    public DropSetStatement parseDropSetStatement() throws MdxParserException {
+        return parse("Drop Set Statement", delegate::parseDropSetStatement);
     }
 
     private <T> T parse(String what, ParseAction<T> action) throws MdxParserException {
