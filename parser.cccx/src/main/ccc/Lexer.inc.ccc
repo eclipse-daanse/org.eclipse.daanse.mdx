@@ -246,6 +246,7 @@ TOKEN #ReservedWord :
 TOKEN #Operator :
   < ASTERISK : "*" >
 | < BANG : "!" >
+| < CARET : "^" >
 | < COLON : ":" >
 | < CONCAT : "||" >
 | < EQ : "=" >

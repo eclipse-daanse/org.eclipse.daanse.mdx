@@ -330,7 +330,18 @@ UnaryExpression#(>1) :
       // This is only in Pentaho, it seems.
       <EXISTING>
     )?
+    PowerExpression
+;
+
+// power: binds more tightly than * / and a leading sign, groups from right to left, the exponent may carry a sign (SSAS)
+PowerExpression#void :
     AliasedPrimary
+    [
+      (
+        <CARET>
+        UnaryExpression
+      )#BinaryExpression(+1)
+    ]
 ;
 
 // inline set alias: names this operand, binds more tightly than * + - : (SSAS); not inside a Cast operand

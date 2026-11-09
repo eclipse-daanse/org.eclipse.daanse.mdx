@@ -346,6 +346,7 @@ TOKEN :
 TOKEN :
   < ASTERISK : "*" >
 | < BANG : "!" >
+| < CARET : "^" >
 | < COLON : ":" >
 | < CONCAT : "||" >
 | < EQ : "=" >
@@ -1372,27 +1373,49 @@ MdxExpression parseFactor :
 {
   MdxExpression p;
 }
-  p = parsePrimary
+  p = parsePower
   {
     return p;
   }
-| < PLUS > p = parsePrimary
+| < PLUS > p = parsePower
   {
     return p;
   }
-| < MINUS > p = parsePrimary
+| < MINUS > p = parsePower
   {
     return new CallExpressionR(new PrefixOperationAtom("-"), List.of(
     p
     )
     );
   }
-| < EXISTING > p = parsePrimary
+| < EXISTING > p = parsePower
   {
     return new CallExpressionR(new PrefixOperationAtom("Existing"), List.of(
     p
     )
     );
+  }
+;
+
+
+// power: binds more tightly than * / and a leading sign, groups from right to left, the exponent may carry a sign (SSAS)
+MdxExpression parsePower :
+{
+  MdxExpression x;
+  MdxExpression y;
+}
+  x = parsePrimary
+  [
+    < CARET > y = parseFactor
+    {
+      x = new CallExpressionR(new InfixOperationAtom("^"), List.of(
+      x, y
+      )
+      );
+    }
+  ]
+  {
+    return x;
   }
 ;
 
