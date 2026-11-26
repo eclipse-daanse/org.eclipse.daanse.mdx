@@ -16,14 +16,23 @@ package org.eclipse.daanse.mdx.model.api.expression.operation;
 import java.util.Objects;
 
 /**
- * Defines a Case-Operation.
+ * Defines a Case-Operation. The name tells the two forms apart; the parts are
+ * one flat list in the call's expressions.
  *
  * <ul>
- * <li>{@code CASE WHEN true THEN <Expression> END}</li>
- * <li>{@code CASE WHEN a=1 THEN <Expression1> ELSE WHEN a>1 THEN <Expression1> END}</li>
+ * <li>{@link #CASE_MATCH}: {@code CASE <operand> WHEN <value> THEN <result> ... [ELSE <result>] END},
+ * list {@code [operand, value1, result1, ..., (else)]}</li>
+ * <li>{@link #CASE_TEST}: {@code CASE WHEN <condition> THEN <result> ... [ELSE <result>] END},
+ * list {@code [condition1, result1, ..., (else)]}</li>
  * </ul>
  */
 public record CaseOperationAtom(String name) implements OperationAtom {
+
+    /** The simple form, with an operand after {@code CASE}. */
+    public static final String CASE_MATCH = "_CaseMatch";
+
+    /** The searched form, with a condition after each {@code WHEN}. */
+    public static final String CASE_TEST = "_CaseTest";
 
     public CaseOperationAtom {
         Objects.requireNonNull(name, "name must not be null");

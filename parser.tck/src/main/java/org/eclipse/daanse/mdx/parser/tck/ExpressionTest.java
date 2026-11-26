@@ -237,6 +237,32 @@ class ExpressionTest {
         }
 
         @Test
+        void testCallExpressionTermCaseSearched(@InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxExpression clause = mdxParserProvider.newParser("CASE WHEN a THEN b ELSE c END", propertyWords)
+                    .parseExpression();
+            assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
+            assertThat(((CallExpression) clause).operationAtom())
+                    .isEqualTo(new CaseOperationAtom(CaseOperationAtom.CASE_TEST));
+            assertThat(((CallExpression) clause).expressions()).hasSize(3);
+            checkArgument((CallExpression) clause, 0, "a");
+            checkArgument((CallExpression) clause, 1, "b");
+            checkArgument((CallExpression) clause, 2, "c");
+        }
+
+        @Test
+        void testCallExpressionTermCaseSearchedTwoBranches(@InjectService MdxParserProvider mdxParserProvider)
+                throws MdxParserException {
+            MdxExpression clause = mdxParserProvider.newParser("CASE WHEN a THEN b WHEN c THEN d END", propertyWords)
+                    .parseExpression();
+            assertThat(((CallExpression) clause).operationAtom())
+                    .isEqualTo(new CaseOperationAtom(CaseOperationAtom.CASE_TEST));
+            assertThat(((CallExpression) clause).expressions()).hasSize(4);
+            checkArgument((CallExpression) clause, 0, "a");
+            checkArgument((CallExpression) clause, 3, "d");
+        }
+
+        @Test
         void testCallExpressionBraces1(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
             MdxExpression clause = mdxParserProvider.newParser("{ expression }", propertyWords).parseExpression();
             assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
@@ -258,8 +284,6 @@ class ExpressionTest {
         void testCallExpressionBraces3(@InjectService MdxParserProvider mdxParserProvider) throws MdxParserException {
             MdxExpression clause = mdxParserProvider.newParser("{ [a] : [c] }", propertyWords).parseExpression();
             assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
-            // assertThat(((CallExpression) clause).operationAtom()).isEqualTo(new
-            // CaseOperationAtom("_CaseMatch"));
             assertThat(((CallExpression) clause).expressions()).hasSize(1);
 
             assertThat(((CallExpression) clause).expressions().get(0)).isInstanceOf(CallExpression.class);
@@ -304,8 +328,6 @@ class ExpressionTest {
                     .parseExpression();
             assertThat(clause).isNotNull().isInstanceOf(CallExpression.class);
             CallExpression callExpression = ((CallExpression) clause);
-            // assertThat(((CallExpression) clause).operationAtom()).isEqualTo(new
-            // CaseOperationAtom("_CaseMatch"));
 
             assertThat(callExpression.expressions()).hasSize(3);
             assertThat(callExpression.expressions().get(0)).isInstanceOf(CompoundId.class);

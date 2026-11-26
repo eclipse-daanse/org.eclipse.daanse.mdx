@@ -622,7 +622,7 @@ INJECT CaseExpression :
 {
     @Override
     public OperationAtom operationAtom() {
-        return new CaseOperationAtom((get(1) instanceof org.eclipse.daanse.mdx.model.api.expression.MdxExpression) ? "_CaseMatch" : "_CaseTest");
+        return new CaseOperationAtom((get(1) instanceof org.eclipse.daanse.mdx.model.api.expression.MdxExpression) ? CaseOperationAtom.CASE_MATCH : CaseOperationAtom.CASE_TEST);
     }
 }
 

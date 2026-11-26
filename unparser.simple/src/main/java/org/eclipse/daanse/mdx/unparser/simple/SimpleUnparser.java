@@ -339,25 +339,32 @@ public class SimpleUnparser implements UnParser {
             sb.append("CAST(").append(unparseExpression(expressions.get(0))).append(" AS ")
                     .append(unparseExpression(expressions.get(1))).append(")");
         }
-        case CaseOperationAtom _UNNAMED -> {
-            sb.append("CASE ");
-            sb.append(unparseExpression(expressions.get(0)));
-            int i = 0;
-            boolean hasElse = false;
-            if ((expressions.size() - 1) > 2 && (expressions.size() - 1) % 2 != 0) {
-                hasElse = true;
+        case CaseOperationAtom caseAtom -> {
+            boolean match;
+            if (CaseOperationAtom.CASE_MATCH.equals(caseAtom.name())) {
+                match = true;
+            } else if (CaseOperationAtom.CASE_TEST.equals(caseAtom.name())) {
+                match = false;
+            } else {
+                throw new IllegalArgumentException("unknown CASE form: " + caseAtom.name());
             }
-            for (int j = 1; j < expressions.size() - 1; j += 2) {
-                sb.append(" WHEN ");
-                sb.append(unparseExpression(expressions.get(j)));
-                if (j + 1 < expressions.size()) {
-                    sb.append(" THEN ");
-                    sb.append(unparseExpression(expressions.get(j + 1)));
-                }
+            if (match && expressions.isEmpty()) {
+                throw new IllegalArgumentException("a simple CASE needs its operand");
+            }
+            int first = match ? 1 : 0;
+            boolean hasElse = (expressions.size() - first) % 2 != 0;
+            int pairsEnd = expressions.size() - (hasElse ? 1 : 0);
+
+            sb.append("CASE");
+            if (match) {
+                sb.append(' ').append(unparseExpression(expressions.get(0)));
+            }
+            for (int j = first; j < pairsEnd; j += 2) {
+                sb.append(" WHEN ").append(unparseExpression(expressions.get(j)));
+                sb.append(" THEN ").append(unparseExpression(expressions.get(j + 1)));
             }
             if (hasElse) {
-                sb.append(" ELSE ");
-                sb.append(unparseExpression(expressions.get(expressions.size() - 1)));
+                sb.append(" ELSE ").append(unparseExpression(expressions.get(expressions.size() - 1)));
             }
             sb.append(" END");
         }

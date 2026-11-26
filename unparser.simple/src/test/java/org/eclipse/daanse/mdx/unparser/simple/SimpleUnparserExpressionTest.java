@@ -17,11 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.daanse.mdx.model.api.expression.CallExpression;
 import org.eclipse.daanse.mdx.model.api.expression.CompoundId;
 import org.eclipse.daanse.mdx.model.api.expression.KeyObjectIdentifier;
+import org.eclipse.daanse.mdx.model.api.expression.MdxExpression;
 import org.eclipse.daanse.mdx.model.api.expression.NameObjectIdentifier;
 import org.eclipse.daanse.mdx.model.api.expression.NullLiteral;
 import org.eclipse.daanse.mdx.model.api.expression.NumericLiteral;
@@ -261,6 +263,74 @@ class SimpleUnparserExpressionTest {
                     List.of(compoundId1, compoundId2, compoundId3, compoundId4, compoundId5));
             assertThat(unparser.unparseExpression(callExpression)).asString().isEqualTo("CASE a WHEN b1 THEN c1 WHEN b2 THEN c2 END");
         }
+        private static CompoundId id(String name) {
+            return new CompoundIdR(List.of(new NameObjectIdentifierR(name, Quoting.UNQUOTED)));
+        }
+
+        private String caseOf(String form, String... parts) {
+            List<MdxExpression> list = Arrays.stream(parts)
+                    .<MdxExpression>map(p -> id(p)).toList();
+            return unparser.unparseExpression(new CallExpressionR(new CaseOperationAtom(form), list)).toString();
+        }
+
+        @Test
+        void testCaseSearchedWithoutElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "c", "t")).isEqualTo("CASE WHEN c THEN t END");
+        }
+
+        @Test
+        void testCaseSearchedWithElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "c", "t", "e")).isEqualTo("CASE WHEN c THEN t ELSE e END");
+        }
+
+        @Test
+        void testCaseSearchedTwoBranches() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "c1", "t1", "c2", "t2"))
+                    .isEqualTo("CASE WHEN c1 THEN t1 WHEN c2 THEN t2 END");
+        }
+
+        @Test
+        void testCaseSearchedTwoBranchesWithElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "c1", "t1", "c2", "t2", "e"))
+                    .isEqualTo("CASE WHEN c1 THEN t1 WHEN c2 THEN t2 ELSE e END");
+        }
+
+        @Test
+        void testCaseSearchedThreeBranchesWithElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "c1", "t1", "c2", "t2", "c3", "t3", "e"))
+                    .isEqualTo("CASE WHEN c1 THEN t1 WHEN c2 THEN t2 WHEN c3 THEN t3 ELSE e END");
+        }
+
+        @Test
+        void testCaseSearchedEmpty() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST)).isEqualTo("CASE END");
+        }
+
+        @Test
+        void testCaseSearchedOnlyElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_TEST, "e")).isEqualTo("CASE ELSE e END");
+        }
+
+        @Test
+        void testCaseMatchOnlyOperand() {
+            assertThat(caseOf(CaseOperationAtom.CASE_MATCH, "a")).isEqualTo("CASE a END");
+        }
+
+        @Test
+        void testCaseMatchOperandAndElse() {
+            assertThat(caseOf(CaseOperationAtom.CASE_MATCH, "a", "d")).isEqualTo("CASE a ELSE d END");
+        }
+
+        @Test
+        void testCaseMatchWithoutOperandIsRefused() {
+            assertThatIllegalArgumentException().isThrownBy(() -> caseOf(CaseOperationAtom.CASE_MATCH));
+        }
+
+        @Test
+        void testCaseUnknownFormIsRefused() {
+            assertThatIllegalArgumentException().isThrownBy(() -> caseOf("_CaseOther", "a", "b", "c"));
+        }
+
         @Test
         void testCallExpressionBraces1() {
             NameObjectIdentifier objectIdentifier = new NameObjectIdentifierR("expression", Quoting.UNQUOTED);

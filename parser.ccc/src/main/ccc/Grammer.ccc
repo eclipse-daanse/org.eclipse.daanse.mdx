@@ -1704,12 +1704,12 @@ MdxExpression parseCaseExpression :
     if (match)
     {
       return new CallExpressionR(
-      new CaseOperationAtom("_CaseMatch"), expressions);
+      new CaseOperationAtom(CaseOperationAtom.CASE_MATCH), expressions);
     }
     else
     {
       return new CallExpressionR(
-      new CaseOperationAtom("_CaseTest"), expressions);
+      new CaseOperationAtom(CaseOperationAtom.CASE_TEST), expressions);
     }
   }
 ;
